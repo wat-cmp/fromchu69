@@ -409,22 +409,39 @@ export default function StaffPortal({
     }
   };
 
-  // Mock upload PDF attachment
+  // Mock upload PDF attachment (saved as base64 in local state for full persistence and real downloading)
   const handleSimulatePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const newFile: AttachedFile = {
-        id: 'file_' + Date.now(),
-        category: uploadCategory,
-        name: file.name,
-        size: (file.size / 1024 / 1024).toFixed(1) + ' MB',
-        type: 'application/pdf',
-        url: '#',
-        uploadedAt: new Date().toISOString().replace('T', ' ').substring(0, 16)
+      // Limit file size to 2 MB to prevent local storage quota limit exceeded
+      const maxSizeInBytes = 2 * 1024 * 1024;
+      if (file.size > maxSizeInBytes) {
+        alert(`ไฟล์ "${file.name}" มีขนาดใหญ่เกินไป (${(file.size / 1024 / 1024).toFixed(1)} MB) เพื่อความรวดเร็วและป้องกันพื้นที่จัดเก็บข้อมูลของเบราว์เซอร์เต็ม กรุณาเลือกไฟล์ PDF ที่มีขนาดไม่เกิน 2 MB`);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64Url = event.target?.result as string;
+        const newFile: AttachedFile = {
+          id: 'file_' + Date.now(),
+          category: uploadCategory,
+          name: file.name,
+          size: (file.size / 1024 / 1024).toFixed(2) + ' MB',
+          type: 'application/pdf',
+          url: base64Url,
+          uploadedAt: new Date().toISOString().replace('T', ' ').substring(0, 16)
+        };
+
+        setUploadedFiles([...uploadedFiles, newFile]);
+        alert(`อัปโหลดและบันทึกไฟล์รายงาน PDF "${file.name}" สำเร็จสำหรับหัวข้อ "${uploadCategory}" (สามารถกดดาวน์โหลดไฟล์จริงได้ในส่วนแสดงผล)`);
       };
 
-      setUploadedFiles([...uploadedFiles, newFile]);
-      alert(`อัปโหลดไฟล์รายงาน PDF สำเร็จสำหรับหัวข้อ "${uploadCategory}"`);
+      reader.onerror = () => {
+        alert('เกิดข้อผิดพลาดในการอ่านไฟล์ PDF กรุณาลองใหม่อีกครั้ง');
+      };
+
+      reader.readAsDataURL(file);
     }
   };
 

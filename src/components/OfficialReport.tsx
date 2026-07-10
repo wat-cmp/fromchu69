@@ -384,7 +384,80 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
                   </div>
                   <button
                     onClick={() => {
-                      alert(`จำลองการดาวน์โหลดไฟล์: ${file.name} (ไฟล์เอกสารบันทึกรายงานผลตรวจเพิ่มเติมของโรงพยาบาล)`);
+                      try {
+                        if (file.url && file.url !== '#' && file.url.startsWith('data:')) {
+                          // Real Base64 uploaded PDF
+                          const link = document.createElement('a');
+                          link.href = file.url;
+                          link.download = file.name;
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                        } else {
+                          // Generate a mini valid PDF file with the content dynamically so that the download is REAL and works!
+                          const generateDummyPdf = (filename: string, category: string) => {
+                            const doc = `%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 4 0 R >> >> /MediaBox [0 0 595.275 841.889] /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 120 >>
+stream
+BT
+/F1 18 Tf
+70 750 Td
+(UBUH Health Checkup Center - Attached Document) Tj
+/F1 12 Tf
+0 -30 Td
+(Document Name: ${filename}) Tj
+0 -20 Td
+(Category: ${category}) Tj
+0 -20 Td
+(Date: ${new Date().toLocaleDateString('th-TH')}) Tj
+0 -40 Td
+(This is a simulated PDF file for the health checkup portal.) Tj
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000242 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+481
+%%EOF`;
+                            return new Blob([doc], { type: 'application/pdf' });
+                          };
+
+                          const blob = generateDummyPdf(file.name, file.category);
+                          const downloadUrl = URL.createObjectURL(blob);
+                          const link = document.createElement('a');
+                          link.href = downloadUrl;
+                          link.download = file.name;
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                          URL.revokeObjectURL(downloadUrl);
+                        }
+                      } catch (error) {
+                        console.error('Download failed:', error);
+                        alert('ไม่สามารถดาวน์โหลดไฟล์ได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง');
+                      }
                     }}
                     className="text-xs font-bold text-[#4A6741] hover:text-[#3d5635] flex items-center space-x-1 border border-[#E0E4D9] hover:border-[#4A6741] px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
                   >
