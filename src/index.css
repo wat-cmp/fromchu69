@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Sarabun", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+body {
+  background-color: #FDFCF9;
+  color: #2D3E2F;
+  font-family: var(--font-sans);
+}
+
+/* Custom print styles for clinical reports */
+@media print {
+  .no-print, header, footer, nav, button {
+    display: none !important;
+  }
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+  /* Force exact colors when printing */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  /* Hide all elements on the page except our official print report */
+  body * {
+    visibility: hidden;
+  }
+  #official-print-report, #official-print-report * {
+    visibility: visible;
+  }
+  #official-print-report {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0 !important;
+    padding: 0.5cm !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "UBUH Health Checkup Center",
+  "description": "ระบบนัดหมาย ลงทะเบียน ประเมินสุขภาพ LM 6 เสาหลัก และเช็กผลตรวจสุขภาพออนไลน์ โรงพยาบาลมหาวิทยาลัยอุบลราชธานี",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
