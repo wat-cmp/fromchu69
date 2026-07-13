@@ -202,8 +202,10 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
             <p className="font-bold text-[#4A6741] font-mono">{patient.hn || <span className="text-gray-400 font-normal">ยังไม่ได้ระบุ</span>}</p>
           </div>
           <div className="space-y-0.5">
-            <span className="text-xs text-gray-400 font-medium">เลขประจำตัวประชาชน (National ID)</span>
-            <p className="font-bold text-gray-800 font-mono">{patient.nationalId}</p>
+            <span className="text-xs text-gray-400 font-medium">วันเดือนปีเกิด (Date of Birth)</span>
+            <p className="font-bold text-gray-800 font-mono">
+              {patient.birthDate ? new Date(patient.birthDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}
+            </p>
           </div>
           <div className="space-y-0.5">
             <span className="text-xs text-gray-400 font-medium">เพศ / อายุ</span>
@@ -497,16 +499,27 @@ startxref
             <p>รายงานผลตรวจสุขภาพนี้ได้รับการยืนยันความถูกต้องผ่านระบบบริการอิเล็กทรอนิกส์</p>
             <p className="font-mono">ออกเอกสาร ณ เวลา {new Date().toLocaleDateString('th-TH')} • โรงพยาบาลมหาวิทยาลัยอุบลราชธานี</p>
           </div>
-          <div className="text-center space-y-3 shrink-0">
-            <div className="relative inline-block">
-              {/* Fake signature line */}
-              <p className="font-mono text-xs text-[#4A6741]/80 italic tracking-wider relative z-10 select-none">
-                {result.doctorName.split(' ').pop()}
-              </p>
-              {/* Doctor Official Stamp represent */}
-              <div className="absolute -top-3 -left-8 border-2 border-red-500/30 text-red-500/30 font-bold text-[9px] uppercase tracking-widest py-1 px-3 rounded-full rotate-[-8deg] pointer-events-none select-none">
-                UBUH OFFICIAL
-              </div>
+          <div className="text-center space-y-3 shrink-0 w-64">
+            <div className="relative min-h-[64px] flex items-center justify-center">
+              {result.doctorSignature ? (
+                <div className="relative">
+                  <img
+                    src={result.doctorSignature}
+                    alt="Doctor Signature"
+                    className="max-h-16 object-contain mix-blend-multiply mx-auto"
+                  />
+                  {/* Doctor Official Stamp represent */}
+                  <div className="absolute -top-3 -right-8 border-2 border-red-500/30 text-red-500/30 font-bold text-[9px] uppercase tracking-widest py-1 px-2 rounded-full rotate-[-8deg] pointer-events-none select-none">
+                    UBUH SIGNED
+                  </div>
+                </div>
+              ) : (
+                <div className="h-16 flex items-end justify-center pb-2">
+                  <span className="text-xs text-gray-300 italic border-b border-dashed border-gray-300 pb-1 w-48 block text-center">
+                    (ลงลายมือชื่อจริงด้วยตนเอง)
+                  </span>
+                </div>
+              )}
             </div>
             <div className="w-48 h-[1px] bg-gray-300 mx-auto"></div>
             <div>

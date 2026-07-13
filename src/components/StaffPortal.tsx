@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { Patient, Appointment, LM6Assessment, LabResult, AttachedFile } from '../types';
 import { BASIC_TESTS, SPECIAL_TESTS, LM6_PILLARS_DETAILS, getBasicProgramDetails } from '../data';
+import SignaturePad from './SignaturePad';
 import {
   ShieldCheck, Lock, Search, Eye, User, Calendar, FileText, Check, Plus,
   Upload, FileUp, ClipboardList, Trash2, ArrowRight, AlertCircle, RefreshCw, Edit2, Activity,
@@ -80,7 +81,6 @@ export default function StaffPortal({
   // Patient editing form states
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [editName, setEditName] = useState('');
-  const [editNationalId, setEditNationalId] = useState('');
   const [editPhone, setEditPhone] = useState('');
   const [editGender, setEditGender] = useState<'female' | 'male'>('female');
   const [editBirthDate, setEditBirthDate] = useState('');
@@ -93,6 +93,7 @@ export default function StaffPortal({
   const [uploadedFiles, setUploadedFiles] = useState<AttachedFile[]>([]);
   const [doctorName, setDoctorName] = useState('พญ. นภัสวรรณ อุ่นใจ');
   const [doctorLicense, setDoctorLicense] = useState('ว.70369');
+  const [doctorSignature, setDoctorSignature] = useState<string | undefined>(undefined);
   const [summary, setSummary] = useState('');
   const [recommendationsInput, setRecommendationsInput] = useState('');
 
@@ -164,10 +165,29 @@ export default function StaffPortal({
 
   // Handle Excel Export for Date Range
   const handleExportExcel = () => {
-    // Filter appointments within range
+    // Helper function to parse 'DD/MM/YYYY' (Thai Buddhist Era) to 'YYYY-MM-DD' (Western AD)
+    const parseThaiDateToAD = (thaiDateStr?: string): string | null => {
+      if (!thaiDateStr) return null;
+      const cleanStr = thaiDateStr.trim();
+      if (cleanStr.includes('-') && cleanStr.split('-').length === 3) {
+        return cleanStr; // Already YYYY-MM-DD
+      }
+      const parts = cleanStr.split('/');
+      if (parts.length !== 3) return null;
+      const day = parts[0].padStart(2, '0');
+      const month = parts[1].padStart(2, '0');
+      const yearBE = parseInt(parts[2], 10);
+      if (isNaN(yearBE)) return null;
+      const yearAD = yearBE - 543;
+      return `${yearAD}-${month}-${day}`; // Format YYYY-MM-DD
+    };
+
+    // Filter appointments within range based on confirmed date (with fallback to scheduled date)
     const filteredApps = appointments.filter(app => {
-      if (exportStartDate && app.date < exportStartDate) return false;
-      if (exportEndDate && app.date > exportEndDate) return false;
+      const confirmedDateAD = parseThaiDateToAD(app.confirmedServiceDate);
+      const appDateToCheck = confirmedDateAD || app.date;
+      if (exportStartDate && appDateToCheck < exportStartDate) return false;
+      if (exportEndDate && appDateToCheck > exportEndDate) return false;
       return true;
     });
 
@@ -185,12 +205,14 @@ export default function StaffPortal({
       return {
         'ลำดับ (No.)': index + 1,
         'เลขประจำตัวผู้ป่วย (HN)': pat?.hn || '-',
-        'เลขประจำตัวประชาชน': pat?.nationalId || '-',
+        'วันเดือนปีเกิด': pat?.birthDate || '-',
         'ชื่อ-นามสกุล': pat?.name || '-',
         'เพศ': pat?.gender === 'male' ? 'ชาย' : pat?.gender === 'female' ? 'หญิง' : '-',
         'อายุ (ปี)': pat?.age || '-',
         'เบอร์โทรศัพท์': pat?.phone || '-',
-        'วันที่เข้ารับบริการ': app.date,
+        'วันที่นัดหมายคิวเดิม': app.date,
+        'วันที่เข้ารับบริการจริง (วันที่ยืนยัน)': app.confirmedServiceDate || '-',
+        'วันที่เข้ารับบริการ': app.confirmedServiceDate || app.date,
         'เวลาที่นัดหมาย': app.time,
         'รูปแบบบริการ': app.patientType === 'agency' ? 'หน่วยงาน' : 'Walk-In',
         'ชื่อหน่วยงาน/สังกัด': app.agencyName || '-',
@@ -210,8 +232,12 @@ export default function StaffPortal({
         'บันทึกแพทย์เพิ่มเติม (Physical)': res?.physical?.notes || '-',
         'ผลเอกซเรย์ปอด (Chest X-Ray)': res?.chestXray?.status || '-',
         'รายละเอียดเอกซเรย์': res?.chestXray?.description || '-',
+        
+        // Lab Parameters (Comprehensive Values & Statuses)
         'ระดับน้ำตาลในเลือด (FBS)': res?.parameters?.fbs?.value ?? '-',
         'สถานะ FBS': res?.parameters?.fbs?.status || '-',
+        'ระดับน้ำตาลสะสม (HbA1c)': res?.parameters?.hba1c?.value ?? '-',
+        'สถานะ HbA1c': res?.parameters?.hba1c?.status || '-',
         'ระดับยูริก (Uric Acid)': res?.parameters?.uricAcid?.value ?? '-',
         'สถานะ Uric Acid': res?.parameters?.uricAcid?.status || '-',
         'ระดับไนโตรเจนในปัสสาวะ (BUN)': res?.parameters?.bun?.value ?? '-',
@@ -236,8 +262,28 @@ export default function StaffPortal({
         'สถานะ CBC': res?.parameters?.cbc?.status || '-',
         'ตรวจปัสสาวะ (UA)': res?.parameters?.ua?.value ?? '-',
         'สถานะ UA': res?.parameters?.ua?.status || '-',
+        'ตรวจอุจจาระ (Stool Exam)': res?.parameters?.stoolExam?.value ?? '-',
+        'สถานะ Stool Exam': res?.parameters?.stoolExam?.status || '-',
+        'ตรวจหาเลือดแฝงในอุจจาระ (Stool Occult Blood)': res?.parameters?.stoolOccult?.value ?? '-',
+        'สถานะ Stool Occult Blood': res?.parameters?.stoolOccult?.status || '-',
+        'ตรวจมะเร็งปากมดลูก (Pap Smear)': res?.parameters?.papSmear?.value ?? '-',
+        'สถานะ Pap Smear': res?.parameters?.papSmear?.status || '-',
+        'ตรวจมะเร็งปากมดลูก (HPV DNA)': res?.parameters?.hpvDna?.value ?? '-',
+        'สถานะ HPV DNA': res?.parameters?.hpvDna?.status || '-',
+        'ตรวจไทรอยด์ Free T3': res?.parameters?.freeT3?.value ?? '-',
+        'สถานะ Free T3': res?.parameters?.freeT3?.status || '-',
+        'ตรวจไทรอยด์ Free T4': res?.parameters?.freeT4?.value ?? '-',
+        'สถานะ Free T4': res?.parameters?.freeT4?.status || '-',
+        'ตรวจไทรอยด์ TSH': res?.parameters?.tsh?.value ?? '-',
+        'สถานะ TSH': res?.parameters?.tsh?.status || '-',
+        'ตรวจคลื่นไฟฟ้าหัวใจ (EKG)': res?.parameters?.ekg?.value ?? '-',
+        'สถานะ EKG': res?.parameters?.ekg?.status || '-',
+        'ตรวจหมู่โลหิต (Blood Group ABO)': res?.parameters?.bloodGroup?.value ?? '-',
+        'สถานะ Blood Group': res?.parameters?.bloodGroup?.status || '-',
+
         'สรุปภาพรวมจากแพทย์': res?.summary || '-',
         'คำแนะนำการปฏิบัติตัว': res?.recommendations?.join('; ') || '-',
+        
         // Lifestyle Medicine (LM6) Evaluation Scores integration
         'LM_วันที่ทำแบบประเมินล่าสุด': latestAssess?.date || 'ยังไม่ได้ประเมิน',
         'LM_คะแนนโภชนาการ (Nutrition) [เต็ม 15]': latestAssess?.scores.nutrition ?? '-',
@@ -254,11 +300,46 @@ export default function StaffPortal({
           return 'ควรปรับปรุง (Needs Improvement)';
         })() : '-',
         'LM_คำแนะนำสรุปพฤติกรรมสุขภาพ': latestAssess?.recommendations.join('; ') || '-',
+
+        // Individual LM6 Question Scores for Latest Assessment
+        'LM_Q1_ผักผลไม้สด (nut1) [คะแนน 0-5]': latestAssess?.answers?.nut1 ?? '-',
+        'LM_Q2_เลี่ยงแปรรูปเค็มมัน (nut2) [คะแนน 0-5]': latestAssess?.answers?.nut2 ?? '-',
+        'LM_Q3_ดื่มน้ำสะอาด (nut3) [คะแนน 0-5]': latestAssess?.answers?.nut3 ?? '-',
+        'LM_Q4_คาร์ดิโอสม่ำเสมอ (phy1) [คะแนน 0-5]': latestAssess?.answers?.phy1 ?? '-',
+        'LM_Q5_ลดพฤติกรรมเนือยนิ่ง (phy2) [คะแนน 0-5]': latestAssess?.answers?.phy2 ?? '-',
+        'LM_Q6_เสริมแรงต้านกล้ามเนื้อ (phy3) [คะแนน 0-5]': latestAssess?.answers?.phy3 ?? '-',
+        'LM_Q7_กลไกผ่อนคลายความเครียด (str1) [คะแนน 0-5]': latestAssess?.answers?.str1 ?? '-',
+        'LM_Q8_ปล่อยวางคิดบวก (str2) [คะแนน 0-5]': latestAssess?.answers?.str2 ?? '-',
+        'LM_Q9_หยุดพักระหว่างวัน (str3) [คะแนน 0-5]': latestAssess?.answers?.str3 ?? '-',
+        'LM_Q10_ปลอดบุหรี่บุหรี่ไฟฟ้า (sub1) [คะแนน 0-5]': latestAssess?.answers?.sub1 ?? '-',
+        'LM_Q11_จำกัดสุราแอลกอฮอล์ (sub2) [คะแนน 0-5]': latestAssess?.answers?.sub2 ?? '-',
+        'LM_Q12_ปลอดสารเสพติด (sub3) [คะแนน 0-5]': latestAssess?.answers?.sub3 ?? '-',
+        'LM_Q13_ระยะเวลานอนหลับที่เพียงพอ (sle1) [คะแนน 0-5]': latestAssess?.answers?.sle1 ?? '-',
+        'LM_Q14_สุขอนามัยห้องนอนที่ดี (sle2) [คะแนน 0-5]': latestAssess?.answers?.sle2 ?? '-',
+        'LM_Q15_หลับสนิทตื่นนอนสดชื่น (sle3) [คะแนน 0-5]': latestAssess?.answers?.sle3 ?? '-',
+        'LM_Q16_ปฏิสัมพันธ์ครอบครัวเพื่อน (soc1) [คะแนน 0-5]': latestAssess?.answers?.soc1 ?? '-',
+        'LM_Q17_มีผู้สนับสนุนจิตใจ (soc2) [คะแนน 0-5]': latestAssess?.answers?.soc2 ?? '-',
+        'LM_Q18_ร่วมกิจกรรมกลุ่มชุมชน (soc3) [คะแนน 0-5]': latestAssess?.answers?.soc3 ?? '-',
       };
     });
 
     // Filter assessments within range
     const filteredAsses = assessments.filter(assess => {
+      // Find appointments for this patient
+      const patientApps = appointments.filter(app => app.patientId === assess.patientId);
+      
+      // If there's a confirmed appointment for this patient, check if its confirmed date is in range
+      const hasConfirmedAppInRange = patientApps.some(app => {
+        const confirmedDateAD = parseThaiDateToAD(app.confirmedServiceDate);
+        const appDateToCheck = confirmedDateAD || app.date;
+        if (exportStartDate && appDateToCheck < exportStartDate) return false;
+        if (exportEndDate && appDateToCheck > exportEndDate) return false;
+        return true;
+      });
+
+      if (hasConfirmedAppInRange) return true;
+
+      // Fallback: check the assessment submission date itself
       if (exportStartDate && assess.date < exportStartDate) return false;
       if (exportEndDate && assess.date > exportEndDate) return false;
       return true;
@@ -267,14 +348,26 @@ export default function StaffPortal({
     // Map LM6 assessments
     const assessmentRows = filteredAsses.map((assess, index) => {
       const pat = patients.find(p => p.id === assess.patientId);
+      
+      // Find the patient's corresponding appointment to get the actual service date
+      const patApps = appointments.filter(app => app.patientId === assess.patientId);
+      const latestApp = patApps.length > 0
+        ? [...patApps].sort((a, b) => {
+            const dateA = parseThaiDateToAD(a.confirmedServiceDate) || a.date;
+            const dateB = parseThaiDateToAD(b.confirmedServiceDate) || b.date;
+            return dateB.localeCompare(dateA);
+          })[0]
+        : null;
+
       return {
         'ลำดับ (No.)': index + 1,
         'เลขประจำตัวผู้ป่วย (HN)': pat?.hn || '-',
-        'เลขประจำตัวประชาชน': pat?.nationalId || '-',
+        'วันเดือนปีเกิด': pat?.birthDate || '-',
         'ชื่อ-นามสกุล': pat?.name || '-',
         'เพศ': pat?.gender === 'male' ? 'ชาย' : pat?.gender === 'female' ? 'หญิง' : '-',
         'อายุ (ปี)': pat?.age || '-',
         'วันที่ประเมิน': assess.date,
+        'วันที่เข้ารับบริการจริง (ยืนยัน)': latestApp?.confirmedServiceDate || latestApp?.date || '-',
         'ด้านโภชนาการ (Nutrition) [เต็ม 15]': assess.scores.nutrition,
         'ด้านกิจกรรมทางกาย (Physical Activity) [เต็ม 15]': assess.scores.physicalActivity,
         'ด้านการจัดการความเครียด (Stress Management) [เต็ม 15]': assess.scores.stressManagement,
@@ -289,6 +382,26 @@ export default function StaffPortal({
           return 'ควรปรับปรุง (Needs Improvement)';
         })(),
         'คำแนะนำพฤติกรรมสุขภาพ': assess.recommendations.join('; ') || '-',
+        
+        // Individual Question Answers for the assessment sheet
+        'Q1_ผักผลไม้สด (nut1) [คะแนน 0-5]': assess.answers?.nut1 ?? '-',
+        'Q2_เลี่ยงแปรรูปเค็มมัน (nut2) [คะแนน 0-5]': assess.answers?.nut2 ?? '-',
+        'Q3_ดื่มน้ำสะอาด (nut3) [คะแนน 0-5]': assess.answers?.nut3 ?? '-',
+        'Q4_คาร์ดิโอสม่ำเสมอ (phy1) [คะแนน 0-5]': assess.answers?.phy1 ?? '-',
+        'Q5_ลดพฤติกรรมเนือยนิ่ง (phy2) [คะแนน 0-5]': assess.answers?.phy2 ?? '-',
+        'Q6_เสริมแรงต้านกล้ามเนื้อ (phy3) [คะแนน 0-5]': assess.answers?.phy3 ?? '-',
+        'Q7_กลไกผ่อนคลายความเครียด (str1) [คะแนน 0-5]': assess.answers?.str1 ?? '-',
+        'Q8_ปล่อยวางคิดบวก (str2) [คะแนน 0-5]': assess.answers?.str2 ?? '-',
+        'Q9_หยุดพักระหว่างวัน (str3) [คะแนน 0-5]': assess.answers?.str3 ?? '-',
+        'Q10_ปลอดบุหรี่บุหรี่ไฟฟ้า (sub1) [คะแนน 0-5]': assess.answers?.sub1 ?? '-',
+        'Q11_จำกัดสุราแอลกอฮอล์ (sub2) [คะแนน 0-5]': assess.answers?.sub2 ?? '-',
+        'Q12_ปลอดสารเสพติด (sub3) [คะแนน 0-5]': assess.answers?.sub3 ?? '-',
+        'Q13_ระยะเวลานอนหลับที่เพียงพอ (sle1) [คะแนน 0-5]': assess.answers?.sle1 ?? '-',
+        'Q14_สุขอนามัยห้องนอนที่ดี (sle2) [คะแนน 0-5]': assess.answers?.sle2 ?? '-',
+        'Q15_หลับสนิทตื่นนอนสดชื่น (sle3) [คะแนน 0-5]': assess.answers?.sle3 ?? '-',
+        'Q16_ปฏิสัมพันธ์ครอบครัวเพื่อน (soc1) [คะแนน 0-5]': assess.answers?.soc1 ?? '-',
+        'Q17_มีผู้สนับสนุนจิตใจ (soc2) [คะแนน 0-5]': assess.answers?.soc2 ?? '-',
+        'Q18_ร่วมกิจกรรมกลุ่มชุมชน (soc3) [คะแนน 0-5]': assess.answers?.soc3 ?? '-',
       };
     });
 
@@ -313,7 +426,7 @@ export default function StaffPortal({
   const filteredPatients = patients.filter(
     (p) =>
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.nationalId.includes(searchQuery)
+      p.phone.includes(searchQuery)
   );
 
   // Filter appointments based on query (by confirmed date, date, or patient name)
@@ -358,6 +471,7 @@ export default function StaffPortal({
       setCxrDesc(existingRes.chestXray.description);
       setDoctorName(existingRes.doctorName);
       setDoctorLicense(existingRes.doctorLicense || 'ว.70369');
+      setDoctorSignature(existingRes.doctorSignature);
       setSummary(existingRes.summary);
       setRecommendationsInput(existingRes.recommendations.join('\n'));
       setUploadedFiles(existingRes.attachedFiles);
@@ -385,6 +499,7 @@ export default function StaffPortal({
       setCxrDesc(''); // Leave empty/blank as requested
       setUploadedFiles([]);
       setSummary('');
+      setDoctorSignature(undefined);
       setRecommendationsInput('');
       setDeclinedTests({});
 
@@ -485,6 +600,7 @@ export default function StaffPortal({
       examDate: new Date().toISOString().split('T')[0],
       doctorName: doctorName.trim() || 'ยังไม่ระบุแพทย์',
       doctorLicense: doctorLicense.trim() || 'ยังไม่ระบุเลข ว.',
+      doctorSignature: doctorSignature,
       status: resultStatus,
       physical: {
         weight: weight || 0,
@@ -568,7 +684,6 @@ export default function StaffPortal({
   const handleOpenEditModal = (p: Patient) => {
     setEditingPatient(p);
     setEditName(p.name);
-    setEditNationalId(p.nationalId);
     setEditPhone(p.phone);
     setEditGender(p.gender);
     setEditAge(p.age);
@@ -596,13 +711,8 @@ export default function StaffPortal({
     e.preventDefault();
     if (!editingPatient) return;
 
-    if (!editName.trim() || !editNationalId.trim() || !editPhone.trim()) {
-      alert('กรุณากรอกข้อมูลหลักให้ครบถ้วน (ชื่อ, เลขประจำตัวประชาชน, เบอร์โทรศัพท์)');
-      return;
-    }
-
-    if (editNationalId.trim().length !== 13 || isNaN(Number(editNationalId))) {
-      alert('เลขบัประจำตัวประชาชนต้องเป็นตัวเลข 13 หลัก');
+    if (!editName.trim() || !editPhone.trim()) {
+      alert('กรุณากรอกข้อมูลหลักให้ครบถ้วน (ชื่อ, เบอร์โทรศัพท์)');
       return;
     }
 
@@ -615,7 +725,6 @@ export default function StaffPortal({
     const updatedPatient: Patient = {
       ...editingPatient,
       name: editName.trim(),
-      nationalId: editNationalId.trim(),
       phone: editPhone.trim(),
       gender: editGender,
       age: Number(editAge),
@@ -1480,6 +1589,12 @@ export default function StaffPortal({
                       required={saveMode === 'complete'}
                     />
                   </div>
+                  <div className="pt-1">
+                    <SignaturePad
+                      value={doctorSignature}
+                      onChange={setDoctorSignature}
+                    />
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <label className="font-bold text-gray-500">สรุปผลภาพรวม (Clinical Impression)</label>
@@ -1591,7 +1706,7 @@ export default function StaffPortal({
                   <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="ค้นหาด้วย ชื่อ หรือ เลขบัตรประชาชน..."
+                    placeholder="ค้นหาด้วย ชื่อ หรือ เบอร์โทรศัพท์..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl w-full focus:outline-none focus:ring-1 focus:ring-[#4A6741] bg-white text-sm"
@@ -1604,7 +1719,7 @@ export default function StaffPortal({
                   <thead className="bg-[#F2F4ED] text-xs font-bold text-[#2D3E2F]">
                     <tr>
                       <th scope="col" className="px-4 py-3 text-left uppercase">ชื่อผู้รับบริการ</th>
-                      <th scope="col" className="px-4 py-3 text-left uppercase">เลขบัตรประชาชน 13 หลัก</th>
+                      <th scope="col" className="px-4 py-3 text-left uppercase">วันเดือนปีเกิด (ค.ศ.)</th>
                       <th scope="col" className="px-4 py-3 text-center uppercase">HN (เลขประจำตัวคนไข้)</th>
                       <th scope="col" className="px-4 py-3 text-center uppercase">อายุ / เพศ</th>
                       <th scope="col" className="px-4 py-3 text-center uppercase bg-[#4A6741]/10 text-[#4A6741]">
@@ -1619,7 +1734,9 @@ export default function StaffPortal({
                       filteredPatients.map((patient) => (
                         <tr key={patient.id} className="hover:bg-gray-50 transition-colors">
                           <td className="px-4 py-3 font-bold text-gray-800">{patient.name}</td>
-                          <td className="px-4 py-3 font-mono text-gray-500">{patient.nationalId}</td>
+                          <td className="px-4 py-3 font-mono text-gray-500">
+                            {patient.birthDate ? new Date(patient.birthDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}
+                          </td>
                           <td className="px-4 py-3 text-center font-mono font-semibold text-[#4A6741]">
                             {patient.hn || <span className="text-gray-300">ไม่มี</span>}
                           </td>
@@ -2362,17 +2479,7 @@ export default function StaffPortal({
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="font-bold text-gray-500">เลขบัตรประชาชน 13 หลัก</label>
-                  <input
-                    type="text"
-                    value={editNationalId}
-                    onChange={(e) => setEditNationalId(e.target.value)}
-                    className="p-2.5 border border-gray-200 rounded-lg w-full text-sm font-mono focus:outline-none focus:ring-1 focus:ring-[#4A6741]"
-                    maxLength={13}
-                    required
-                  />
-                </div>
+                {/* Omitted National ID to protect PDPA */}
 
                 <div className="space-y-1">
                   <label className="font-bold text-gray-500">วันเกิด (ค.ศ.)</label>

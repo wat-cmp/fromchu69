@@ -32,13 +32,13 @@ export default function PatientPortal({
 }: PatientPortalProps) {
   // Login / Register Form States
   const [isRegistering, setIsRegistering] = useState(false);
-  const [loginNationalId, setLoginNationalId] = useState('');
+  const [loginIdentity, setLoginIdentity] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
 
   // Register Form States
   const [regName, setRegName] = useState('');
-  const [regNationalId, setRegNationalId] = useState('');
+  const [regPdpaConsent, setRegPdpaConsent] = useState(false);
   const [regPhone, setRegPhone] = useState('');
   const [regGender, setRegGender] = useState<'female' | 'male'>('female');
   const [regBirthDate, setRegBirthDate] = useState('');
@@ -94,15 +94,20 @@ export default function PatientPortal({
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
-    const found = patients.find(
-      (p) => p.nationalId === loginNationalId.trim() && p.password === loginPassword.trim()
-    );
+    const inputId = loginIdentity.trim();
+    const found = patients.find((p) => {
+      if (!p.birthDate || !p.hn) return false;
+      const birthYear = p.birthDate.substring(0, 4); // YYYY from YYYY-MM-DD
+      const expectedId = `${birthYear}${p.hn}`;
+      return expectedId === inputId && p.password === loginPassword.trim();
+    });
+
     if (found) {
       setLoggedInPatient(found);
-      setLoginNationalId('');
+      setLoginIdentity('');
       setLoginPassword('');
     } else {
-      setLoginError('เลขบัตรประชาชนหรือรหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง');
+      setLoginError('รหัสระบุตัวตน (ค.ศ.เกิด + HN) หรือรหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง (สำหรับผู้รับบริการใหม่ กรุณารอเจ้าหน้าที่ออกหมายเลข HN ในระบบก่อนเข้าสู่ระบบ)');
     }
   };
 
@@ -112,7 +117,7 @@ export default function PatientPortal({
     setRegError('');
     setRegSuccess(false);
 
-    if (!regName.trim() || !regNationalId.trim() || !regPhone.trim()) {
+    if (!regName.trim() || !regPhone.trim()) {
       setRegError('กรุณากรอกข้อมูลส่วนตัวให้ครบทุกช่อง');
       return;
     }
@@ -122,25 +127,18 @@ export default function PatientPortal({
       return;
     }
 
-    if (regNationalId.trim().length !== 13 || isNaN(Number(regNationalId))) {
-      setRegError('กรุณากรอกเลขบัตรประชาชนเป็นตัวเลข 13 หลัก');
-      return;
-    }
-
-    const existing = patients.find((p) => p.nationalId === regNationalId.trim());
-    if (existing) {
-      setRegError('เลขบัตรประจำตัวประชาชนนี้ได้รับการลงทะเบียนในระบบแล้ว');
-      return;
-    }
-
     if (!isPasswordValid(regPassword)) {
       setRegError('รหัสผ่านไม่ตรงตามเงื่อนไข: ต้องขึ้นต้นด้วยตัวอักษรพิมพ์ใหญ่ A-Z 4 ตัว และตามด้วยตัวเลข 4-6 หลัก (เช่น ABCD1234)');
       return;
     }
 
+    if (!regPdpaConsent) {
+      setRegError('กรุณากดยินยอมให้นโยบายความเป็นส่วนตัวและ PDPA เพื่อบันทึกข้อมูล');
+      return;
+    }
+
     const newPatient: Patient = {
       id: 'p_' + Date.now(),
-      nationalId: regNationalId.trim(),
       name: regName.trim(),
       phone: regPhone.trim(),
       gender: regGender,
@@ -148,6 +146,8 @@ export default function PatientPortal({
       birthDate: regBirthDate,
       password: regPassword,
       registeredAt: new Date().toISOString().split('T')[0],
+      pdpaConsent: true,
+      pdpaConsentAt: new Date().toISOString()
     };
 
     onRegister(newPatient);
@@ -157,10 +157,10 @@ export default function PatientPortal({
       setLoggedInPatient(newPatient);
       // Clean forms
       setRegName('');
-      setRegNationalId('');
       setRegPhone('');
       setRegBirthDate('');
       setRegPassword('');
+      setRegPdpaConsent(false);
       setRegSuccess(false);
     }, 1500);
   };
@@ -398,20 +398,23 @@ export default function PatientPortal({
                 )}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    เลขประจำตัวประชาชน 13 หลัก
+                    รหัสระบุตัวตน (ค.ศ.เกิด + HN)
                   </label>
                   <div className="relative">
                     <User className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
                     <input
                       type="text"
-                      maxLength={13}
-                      placeholder="เช่น 1100100xxxxxx"
-                      value={loginNationalId}
-                      onChange={(e) => setLoginNationalId(e.target.value.replace(/\D/g, ''))}
+                      maxLength={20}
+                      placeholder="เช่น ค.ศ.เกิด 1995 + HN 8249 = 19958249"
+                      value={loginIdentity}
+                      onChange={(e) => setLoginIdentity(e.target.value.replace(/[^a-zA-Z0-9]/g, ''))}
                       className="pl-10 pr-4 py-3 w-full border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#4A6741] focus:border-transparent font-mono"
                       required
                     />
                   </div>
+                  <p className="text-[10px] text-gray-400 leading-normal">
+                    * กรอกปี ค.ศ. เกิดของท่าน (4 หลัก) ติดกันด้วยหมายเลข HN ของท่าน
+                  </p>
                 </div>
 
                 <div className="space-y-1.5">
@@ -467,21 +470,6 @@ export default function PatientPortal({
                     value={regName}
                     onChange={(e) => setRegName(e.target.value)}
                     className="px-4 py-2.5 w-full border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#4A6741] focus:border-transparent"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    เลขประจำตัวประชาชน 13 หลัก
-                  </label>
-                  <input
-                    type="text"
-                    maxLength={13}
-                    placeholder="กรอกเฉพาะตัวเลข 13 หลัก"
-                    value={regNationalId}
-                    onChange={(e) => setRegNationalId(e.target.value.replace(/\D/g, ''))}
-                    className="px-4 py-2.5 w-full border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#4A6741] focus:border-transparent font-mono"
                     required
                   />
                 </div>
@@ -565,11 +553,31 @@ export default function PatientPortal({
                   </div>
                 </div>
 
+                {/* PDPA Consent Box */}
+                <div className="bg-[#FAFBF9] border border-[#E0E4D9] p-4 rounded-xl space-y-3">
+                  <div className="flex items-start space-x-2.5">
+                    <input
+                      type="checkbox"
+                      id="pdpa-consent"
+                      checked={regPdpaConsent}
+                      onChange={(e) => setRegPdpaConsent(e.target.checked)}
+                      className="mt-1 h-4 w-4 text-[#4A6741] border-gray-300 rounded focus:ring-[#4A6741]"
+                      required
+                    />
+                    <label htmlFor="pdpa-consent" className="text-xs text-slate-600 leading-relaxed cursor-pointer select-none">
+                      ฉันยินยอมให้ <strong className="text-[#4A6741]">ศูนย์ตรวจสุขภาพ รพ.มหาวิทยาลัยอุบลราชธานี</strong> เก็บรวบรวม ใช้ และประมวลผลข้อมูลส่วนบุคคลและข้อมูลด้านสุขภาพของฉัน เพื่อวัตถุประสงค์ในการลงทะเบียน นัดหมายล่วงหน้า และประมวลผลเพื่อแสดงรายงานผลตรวจสุขภาพออนไลน์ตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA)
+                    </label>
+                  </div>
+                  <p className="text-[10px] text-gray-400">
+                    * ข้อมูลส่วนบุคคลและข้อมูลการตรวจวิเคราะห์ของท่านจะถูกจัดเก็บเป็นความลับสูงสุดตามมาตรฐานสากลและกฎหมายคุ้มครองข้อมูลส่วนบุคคลด้านสาธารณสุข
+                  </p>
+                </div>
+
                 <button
                   type="submit"
-                  disabled={!isPasswordValid(regPassword)}
+                  disabled={!isPasswordValid(regPassword) || !regPdpaConsent}
                   className={`w-full font-bold py-3 px-4 rounded-xl text-sm shadow-md transition-all flex justify-center items-center space-x-2 ${
-                    isPasswordValid(regPassword)
+                    isPasswordValid(regPassword) && regPdpaConsent
                       ? 'bg-[#4A6741] hover:bg-[#3d5635] text-white hover:shadow-lg cursor-pointer'
                       : 'bg-gray-150 text-gray-400 cursor-not-allowed shadow-none'
                   }`}

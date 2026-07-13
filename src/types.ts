@@ -1,6 +1,6 @@
 export interface Patient {
   id: string;
-  nationalId: string;
+  nationalId?: string;
   name: string;
   phone: string;
   gender: 'female' | 'male';
@@ -9,6 +9,8 @@ export interface Patient {
   password: string; // 4 uppercase letters + 4-6 digits (e.g. ABCD1234)
   registeredAt: string;
   hn?: string;
+  pdpaConsent?: boolean;
+  pdpaConsentAt?: string;
 }
 
 export interface Appointment {
@@ -61,6 +63,7 @@ export interface LabResult {
   examDate: string;
   doctorName: string;
   doctorLicense?: string;
+  doctorSignature?: string; // Base64 signature image
   status: 'pending' | 'completed';
   
   // Physical Exam

@@ -576,7 +576,7 @@ export function getBasicProgramDetails(gender: 'female' | 'male', age: number) {
 export const INITIAL_PATIENTS: Patient[] = [
   {
     id: 'p1',
-    nationalId: '1100100223344',
+    hn: '8241',
     name: 'นายสมชาย ใจดี',
     phone: '0812345678',
     gender: 'male',
@@ -587,7 +587,7 @@ export const INITIAL_PATIENTS: Patient[] = [
   },
   {
     id: 'p2',
-    nationalId: '1200100556677',
+    hn: '8242',
     name: 'นางสาวสมศรี รักดี',
     phone: '0898765432',
     gender: 'female',
@@ -598,7 +598,7 @@ export const INITIAL_PATIENTS: Patient[] = [
   },
   {
     id: 'p3',
-    nationalId: '1300200889900',
+    hn: '8243',
     name: 'นายวิชัย เรียนดี',
     phone: '0854443322',
     gender: 'male',
