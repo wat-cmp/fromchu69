@@ -1533,6 +1533,9 @@ export default function StaffPortal({
                   >
                     <option value="Chest X-Ray">Chest X-Ray (เอกซเรย์ปอด)</option>
                     <option value="CBC Result">CBC Result (ผลเม็ดเลือด)</option>
+                    <option value="Urine Analysis">Urine Analysis (ผลตรวจปัสสาวะ)</option>
+                    <option value="Stool Exam">Stool Exam (ผลตรวจอุจจาระ)</option>
+                    <option value="Cervical Cancer Screening">Cervical Cancer Screening (คัดกรองมะเร็งปากมดลูก)</option>
                     <option value="Lipid Profile">Lipid Profile (ผลไขมัน)</option>
                     <option value="Thyroid Panel">Thyroid Panel (ผลไทรอยด์)</option>
                     <option value="Cancer Markers">Cancer Markers (สารบ่งชี้มะเร็ง)</option>
