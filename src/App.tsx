@@ -146,10 +146,15 @@ export default function App() {
     }
   }, [patients, loggedInPatient]);
 
+  // Helper to strip undefined values before writing to Firestore
+  const cleanForFirestore = <T,>(obj: T): T => {
+    return JSON.parse(JSON.stringify(obj));
+  };
+
   // Sync state helpers to Firestore
   const handleRegisterPatient = async (newPatient: Patient) => {
     try {
-      await setDoc(doc(db, 'patients', newPatient.id), newPatient);
+      await setDoc(doc(db, 'patients', newPatient.id), cleanForFirestore(newPatient));
     } catch (e) {
       console.error("Error registering patient: ", e);
     }
@@ -157,7 +162,7 @@ export default function App() {
 
   const handleUpdatePatient = async (updatedPatient: Patient) => {
     try {
-      await setDoc(doc(db, 'patients', updatedPatient.id), updatedPatient);
+      await setDoc(doc(db, 'patients', updatedPatient.id), cleanForFirestore(updatedPatient));
       if (loggedInPatient && loggedInPatient.id === updatedPatient.id) {
         setLoggedInPatient(updatedPatient);
       }
@@ -168,7 +173,7 @@ export default function App() {
 
   const handleBookAppointment = async (newApp: Appointment) => {
     try {
-      await setDoc(doc(db, 'appointments', newApp.id), newApp);
+      await setDoc(doc(db, 'appointments', newApp.id), cleanForFirestore(newApp));
     } catch (e) {
       console.error("Error booking appointment: ", e);
     }
@@ -176,7 +181,7 @@ export default function App() {
 
   const handleSaveAssessment = async (newAs: LM6Assessment) => {
     try {
-      await setDoc(doc(db, 'assessments', newAs.id), newAs);
+      await setDoc(doc(db, 'assessments', newAs.id), cleanForFirestore(newAs));
     } catch (e) {
       console.error("Error saving assessment: ", e);
     }
@@ -184,7 +189,15 @@ export default function App() {
 
   const handleSaveResult = async (newRes: LabResult) => {
     try {
-      await setDoc(doc(db, 'results', newRes.appointmentId), newRes);
+      // Strip base64 URLs from attachedFiles to stay within Firestore 1MB document size limit
+      const firestoreRes = {
+        ...newRes,
+        attachedFiles: (newRes.attachedFiles || []).map(file => ({
+          ...file,
+          url: '' // Keep the metadata in Firestore, retrieve real file content from client IndexedDB
+        }))
+      };
+      await setDoc(doc(db, 'results', newRes.appointmentId), cleanForFirestore(firestoreRes));
     } catch (e) {
       console.error("Error saving result: ", e);
     }
@@ -194,7 +207,7 @@ export default function App() {
     const ap = appointments.find(a => a.id === id);
     if (ap) {
       try {
-        await setDoc(doc(db, 'appointments', id), { ...ap, status });
+        await setDoc(doc(db, 'appointments', id), cleanForFirestore({ ...ap, status }));
       } catch (e) {
         console.error("Error updating status: ", e);
       }
@@ -203,7 +216,7 @@ export default function App() {
 
   const handleUpdateAppointment = async (updatedApp: Appointment) => {
     try {
-      await setDoc(doc(db, 'appointments', updatedApp.id), updatedApp);
+      await setDoc(doc(db, 'appointments', updatedApp.id), cleanForFirestore(updatedApp));
     } catch (e) {
       console.error("Error updating appointment: ", e);
     }

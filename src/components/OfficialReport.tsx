@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { Patient, LabResult, Appointment } from '../types';
 import { BASIC_TESTS, SPECIAL_TESTS } from '../data';
 import { Printer, Download, ArrowLeft, ShieldAlert, CheckCircle2, User, HelpCircle, FileText } from 'lucide-react';
+import { getFileContent } from '../lib/fileStorage';
 
 interface OfficialReportProps {
   patient: Patient;
@@ -385,12 +386,22 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
                     </div>
                   </div>
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       try {
-                        if (file.url && file.url !== '#' && file.url.startsWith('data:')) {
+                        let targetUrl = file.url;
+                        
+                        // If file.url is empty (removed from Firestore payload), fetch it from IndexedDB
+                        if (!targetUrl || targetUrl === '#' || !targetUrl.startsWith('data:')) {
+                          const localData = await getFileContent(file.id);
+                          if (localData && localData.startsWith('data:')) {
+                            targetUrl = localData;
+                          }
+                        }
+
+                        if (targetUrl && targetUrl !== '#' && targetUrl.startsWith('data:')) {
                           // Real Base64 uploaded PDF
                           const link = document.createElement('a');
-                          link.href = file.url;
+                          link.href = targetUrl;
                           link.download = file.name;
                           document.body.appendChild(link);
                           link.click();

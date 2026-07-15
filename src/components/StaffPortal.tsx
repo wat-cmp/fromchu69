@@ -3,6 +3,7 @@ import * as XLSX from 'xlsx';
 import { Patient, Appointment, LM6Assessment, LabResult, AttachedFile } from '../types';
 import { BASIC_TESTS, SPECIAL_TESTS, LM6_PILLARS_DETAILS, getBasicProgramDetails } from '../data';
 import SignaturePad from './SignaturePad';
+import { saveFileContent } from '../lib/fileStorage';
 import {
   ShieldCheck, Lock, Search, Eye, User, Calendar, FileText, Check, Plus,
   Upload, FileUp, ClipboardList, Trash2, ArrowRight, AlertCircle, RefreshCw, Edit2, Activity,
@@ -56,6 +57,7 @@ export default function StaffPortal({
   // Active Patient / Appointment for result entry
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [saveMode, setSaveMode] = useState<'draft' | 'complete'>('complete');
+  const saveModeRef = React.useRef<'draft' | 'complete'>('complete');
 
   // Result entry form states
   const [weight, setWeight] = useState<number | string>('');
@@ -73,7 +75,7 @@ export default function StaffPortal({
   const [cxrDesc, setCxrDesc] = useState('');
 
   // Lab Parameters input values
-  const [labValues, setLabValues] = useState<Record<string, { value: string; status: 'ปกติ' | 'ผิดปกติ' | 'เสี่ยงสูง' | 'เสี่ยงต่ำ' | 'ไม่ประสงค์ตรวจ' }>>({});
+  const [labValues, setLabValues] = useState<Record<string, { value: string; status: 'ปกติ' | 'ผิดปกติ' | 'เสี่ยงสูง' | 'เสี่ยงต่ำ' | 'ไม่ประสงค์ตรวจ'; declined?: boolean }>>({});
 
   // Declined tests state
   const [declinedTests, setDeclinedTests] = useState<Record<string, boolean>>({});
@@ -454,7 +456,7 @@ export default function StaffPortal({
     const basicInfo = BASIC_TESTS;
     const specialInfo = SPECIAL_TESTS;
 
-    const initialValues: Record<string, { value: string; status: 'ปกติ' | 'ผิดปกติ' | 'เสี่ยงสูง' | 'เสี่ยงต่ำ' | 'ไม่ประสงค์ตรวจ' }> = {};
+    const initialValues: Record<string, { value: string; status: 'ปกติ' | 'ผิดปกติ' | 'เสี่ยงสูง' | 'เสี่ยงต่ำ' | 'ไม่ประสงค์ตรวจ'; declined?: boolean }> = {};
     const initialDeclined: Record<string, boolean> = {};
 
     // We can pre-initialize values or copy from existing results if editing
@@ -475,12 +477,42 @@ export default function StaffPortal({
       setSummary(existingRes.summary);
       setRecommendationsInput(existingRes.recommendations.join('\n'));
       setUploadedFiles(existingRes.attachedFiles);
-      setLabValues(existingRes.parameters);
+
+      // Determine which tests are actually required for this appointment
+      const basicTestsToUse = app.selectedBasicTests || getBasicProgramDetails(patient.gender, patient.age).tests;
+      const testsToInclude = [
+        ...basicTestsToUse.filter(t => t !== 'physical' && t !== 'chestXray'),
+        ...app.specialTests
+      ];
+
+      // Merge: Start with empty values for all required tests
+      const mergedValues: Record<string, { value: string; status: 'ปกติ' | 'ผิดปกติ' | 'เสี่ยงสูง' | 'เสี่ยงต่ำ' | 'ไม่ประสงค์ตรวจ'; declined?: boolean }> = {};
+      testsToInclude.forEach(testId => {
+        const meta = BASIC_TESTS[testId] || SPECIAL_TESTS[testId];
+        if (meta) {
+          mergedValues[testId] = {
+            value: '',
+            status: 'ปกติ'
+          };
+        }
+      });
+
+      // Overwrite with any previously saved parameters
+      if (existingRes.parameters) {
+        Object.entries(existingRes.parameters).forEach(([key, param]) => {
+          mergedValues[key] = {
+            value: param.value || '',
+            status: param.status || 'ปกติ'
+          };
+        });
+      }
+
+      setLabValues(mergedValues);
 
       if (existingRes.chestXray.status === 'ไม่ประสงค์ตรวจ' || existingRes.chestXray.declined) {
         initialDeclined['chestXray'] = true;
       }
-      Object.entries(existingRes.parameters).forEach(([key, param]) => {
+      Object.entries(mergedValues).forEach(([key, param]) => {
         if (param.status === 'ไม่ประสงค์ตรวจ' || param.declined) {
           initialDeclined[key] = true;
         }
@@ -536,7 +568,7 @@ export default function StaffPortal({
       }
 
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = async (event) => {
         const base64Url = event.target?.result as string;
         const newFile: AttachedFile = {
           id: 'file_' + Date.now(),
@@ -547,6 +579,9 @@ export default function StaffPortal({
           url: base64Url,
           uploadedAt: new Date().toISOString().replace('T', ' ').substring(0, 16)
         };
+
+        // Save base64 data to IndexedDB to keep Firestore documents lightweight (<1MB)
+        await saveFileContent(newFile.id, base64Url);
 
         setUploadedFiles([...uploadedFiles, newFile]);
         alert(`อัปโหลดและบันทึกไฟล์รายงาน PDF "${file.name}" สำเร็จสำหรับหัวข้อ "${uploadCategory}" (สามารถกดดาวน์โหลดไฟล์จริงได้ในส่วนแสดงผล)`);
@@ -590,8 +625,9 @@ export default function StaffPortal({
 
     const existingRes = results.find(r => r.appointmentId === selectedAppointment.id);
 
-    const resultStatus = saveMode === 'complete' ? 'completed' : 'pending';
-    const appointmentStatus = saveMode === 'complete' ? 'completed' : 'pending_results';
+    const currentSaveMode = saveModeRef.current;
+    const resultStatus = currentSaveMode === 'complete' ? 'completed' : 'pending';
+    const appointmentStatus = currentSaveMode === 'complete' ? 'completed' : 'pending_results';
 
     const finalResult: LabResult = {
       id: existingRes ? existingRes.id : 'res_' + Date.now(),
@@ -620,14 +656,14 @@ export default function StaffPortal({
       },
       parameters: mappedParameters,
       attachedFiles: uploadedFiles,
-      summary: summary.trim() || (saveMode === 'complete' ? `ตรวจพบสัญญาณชีพโดยทั่วไปอยู่ในเกณฑ์ปกติ มีรายการที่เฝ้าระวังเพิ่มเติม` : `(บันทึกร่างเบื้องต้น) ผลตรวจยังไม่ครบถ้วน`),
-      recommendations: recommendationsArray.length > 0 ? recommendationsArray : (saveMode === 'complete' ? ['ออกกำลังกายสม่ำเสมอสัปดาห์ละ 150 นาที', 'เลือกทานอาหารธรรมชาติ ดื่มน้ำสะอาด และพักผ่อนนอนหลับให้เพียงพอ'] : ['รอยืนยันผลการประเมินเพื่อรับคำแนะนำ'])
+      summary: summary.trim() || (currentSaveMode === 'complete' ? `ตรวจพบสัญญาณชีพโดยทั่วไปอยู่ในเกณฑ์ปกติ มีรายการที่เฝ้าระวังเพิ่มเติม` : `(บันทึกร่างเบื้องต้น) ผลตรวจยังไม่ครบถ้วน`),
+      recommendations: recommendationsArray.length > 0 ? recommendationsArray : (currentSaveMode === 'complete' ? ['ออกกำลังกายสม่ำเสมอสัปดาห์ละ 150 นาที', 'เลือกทานอาหารธรรมชาติ ดื่มน้ำสะอาด และพักผ่อนนอนหลับให้เพียงพอ'] : ['รอยืนยันผลการประเมินเพื่อรับคำแนะนำ'])
     };
 
     onSaveResult(finalResult);
     onUpdateAppointmentStatus(selectedAppointment.id, appointmentStatus);
     setSelectedAppointment(null);
-    if (saveMode === 'complete') {
+    if (currentSaveMode === 'complete') {
       alert('บันทึกผลการตรวจแลปแบบสมบูรณ์และแสดงรายงาน PDF เรียบร้อยแล้ว! ข้อมูลประวัติคนไข้จะขึ้นสถานะเสร็จสิ้น');
     } else {
       alert('บันทึกผลตรวจเบื้องต้น (ร่าง) สำเร็จ! สถานะคิวได้รับการปรับปรุงเพื่อติดตามต่อแล้ว');
@@ -1627,14 +1663,21 @@ export default function StaffPortal({
             <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-[#E0E4D9]">
               <button
                 type="submit"
-                onClick={() => setSaveMode('draft')}
+                formNoValidate
+                onClick={() => {
+                  saveModeRef.current = 'draft';
+                  setSaveMode('draft');
+                }}
                 className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 px-4 rounded-xl text-sm shadow-sm transition-all cursor-pointer text-center flex items-center justify-center space-x-2"
               >
                 <span>บันทึกเบื้องต้น (ผลยังไม่ครบถ้วน)</span>
               </button>
               <button
                 type="submit"
-                onClick={() => setSaveMode('complete')}
+                onClick={() => {
+                  saveModeRef.current = 'complete';
+                  setSaveMode('complete');
+                }}
                 className="flex-1 bg-[#4A6741] hover:bg-[#3d5635] text-white font-extrabold py-3.5 px-4 rounded-xl text-sm shadow-sm hover:shadow transition-all cursor-pointer text-center flex items-center justify-center space-x-2"
               >
                 <span>บันทึกและแสดงรายงาน PDF</span>
