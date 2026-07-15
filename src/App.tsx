@@ -189,13 +189,17 @@ export default function App() {
 
   const handleSaveResult = async (newRes: LabResult) => {
     try {
-      // Strip base64 URLs from attachedFiles to stay within Firestore 1MB document size limit
+      // Strip base64 URLs from attachedFiles ONLY if they are large to stay within Firestore 1MB document size limit.
+      // Small/standard files (e.g., < 700,000 chars of base64, which is ~500KB) are kept in Firestore for multi-device sync!
       const firestoreRes = {
         ...newRes,
-        attachedFiles: (newRes.attachedFiles || []).map(file => ({
-          ...file,
-          url: '' // Keep the metadata in Firestore, retrieve real file content from client IndexedDB
-        }))
+        attachedFiles: (newRes.attachedFiles || []).map(file => {
+          const isLarge = file.url && file.url.length > 700000;
+          return {
+            ...file,
+            url: isLarge ? '' : file.url
+          };
+        })
       };
       await setDoc(doc(db, 'results', newRes.appointmentId), cleanForFirestore(firestoreRes));
     } catch (e) {

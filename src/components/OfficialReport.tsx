@@ -407,6 +407,51 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
                           link.click();
                           document.body.removeChild(link);
                         } else {
+                          // Helper to sanitize and translate Thai words to PDF-safe English characters
+                          const toPdfSafeString = (str: string): string => {
+                            if (!str) return '';
+                            let safeStr = str;
+                            const translationMap: Record<string, string> = {
+                              'ข้อมูลรายละเอียดและคำแนะนำการเตรียมตัว': 'Preparation Guidelines & Info',
+                              'คำแนะนำการเตรียมตัว': 'Preparation Guidelines',
+                              'ใบรับรองแพทย์': 'Medical Certificate',
+                              'ผลตรวจปัสสาวะ': 'Urine Analysis Report',
+                              'ผลตรวจเลือด': 'Blood Test Report',
+                              'ผลตรวจสุขภาพ': 'Health Checkup Report',
+                              'ผลเอกซเรย์': 'X-Ray Report',
+                              'ผลตรวจแลป': 'Lab Test Report',
+                              'ผลแลป': 'Lab Report',
+                              'ผลตรวจ': 'Exam Results',
+                              'รายงาน': 'Report',
+                              'ฟิล์ม': 'Film',
+                              'เอกซเรย์': 'X-Ray',
+                              'รังสี': 'Radiology',
+                              'ทรวงอก': 'Chest',
+                              'ผู้ชาย': 'Male',
+                              'ผู้หญิง': 'Female',
+                              'ชาย': 'Male',
+                              'หญิง': 'Female',
+                              'ประจำปี': 'Annual',
+                              'เพิ่มเติม': 'Additional'
+                            };
+
+                            Object.entries(translationMap).forEach(([thai, eng]) => {
+                              safeStr = safeStr.replace(new RegExp(thai, 'g'), eng);
+                            });
+
+                            // Replace remaining Thai characters to avoid PDF font encoding corruption
+                            safeStr = safeStr.replace(/[\u0E00-\u0E7F]+/g, 'Document');
+                            
+                            // Clean up extra spaces
+                            safeStr = safeStr.replace(/\s+/g, ' ').trim();
+                            
+                            // PDF literal string escaping (parentheses and backslashes)
+                            return safeStr.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+                          };
+
+                          const safeName = toPdfSafeString(file.name);
+                          const safeCategory = toPdfSafeString(file.category);
+
                           // Generate a mini valid PDF file with the content dynamically so that the download is REAL and works!
                           const generateDummyPdf = (filename: string, category: string) => {
                             const doc = `%PDF-1.4
@@ -457,7 +502,7 @@ startxref
                             return new Blob([doc], { type: 'application/pdf' });
                           };
 
-                          const blob = generateDummyPdf(file.name, file.category);
+                          const blob = generateDummyPdf(safeName, safeCategory);
                           const downloadUrl = URL.createObjectURL(blob);
                           const link = document.createElement('a');
                           link.href = downloadUrl;
