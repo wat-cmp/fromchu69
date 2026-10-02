@@ -317,17 +317,20 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-[#4A6741] text-white py-8 border-t border-[#3d5635] mt-12 no-print">
+      <footer className="bg-gradient-to-r from-blue-950 via-blue-900 to-sky-950 text-white py-8 border-t-4 border-sky-500 mt-12 no-print shadow-inner">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
           <div className="space-y-1">
-            <p className="text-sm font-bold tracking-wide">โรงพยาบาลมหาวิทยาลัยอุบลราชธานี (UBUH)</p>
-            <p className="text-xs text-green-100">
-              ระบบศูนย์ตรวจสุขภาพออนไลน์ประจำปีและส่งเสริมเวชศาสตร์วิถีชีวิต
+            <div className="flex items-center justify-center sm:justify-start gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-sky-400"></span>
+              <p className="text-sm font-bold tracking-wide">โรงพยาบาลมหาวิทยาลัยอุบลราชธานี (UBUH)</p>
+            </div>
+            <p className="text-xs text-sky-200">
+              ระบบศูนย์ตรวจสุขภาพออนไลน์ประจำปีและส่งเสริมเวชศาสตร์วิถีชีวิต (Lifestyle Medicine Center)
             </p>
           </div>
-          <p className="text-xs text-green-200/80 font-mono">
-            &copy; {new Date().getFullYear()} UBUH Health Checkup Center. All Rights Reserved.
-          </p>
+          <div className="text-xs text-sky-300/80 font-mono text-center sm:text-right">
+            <p>&copy; {new Date().getFullYear()} UBUH Health Checkup Center. All Rights Reserved.</p>
+          </div>
         </div>
       </footer>
     </div>

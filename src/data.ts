@@ -284,6 +284,15 @@ export const SPECIAL_TESTS: Record<string, TestInfo> = {
     unit: '',
     categories: ['special']
   },
+  mammogram: {
+    id: 'mammogram',
+    name: 'ตรวจ Memmogram',
+    detail: 'ตรวจเอกซเรย์เต้านมคัดกรองมะเร็งเต้านม (Digital Mammogram)',
+    price: 2400,
+    refRange: 'BI-RADS 1-2 (ปกติ)',
+    unit: '',
+    categories: ['special', 'cancer']
+  },
   // Cancer markers
   afp: {
     id: 'afp',

@@ -7,7 +7,7 @@ import { saveFileContent } from '../lib/fileStorage';
 import {
   ShieldCheck, Lock, Search, Eye, User, Calendar, FileText, Check, Plus,
   Upload, FileUp, ClipboardList, Trash2, ArrowRight, AlertCircle, RefreshCw, Edit2, Activity,
-  BarChart3, PieChart, TrendingUp, Heart, Percent, Users, Scale, Download, FileSpreadsheet
+  BarChart3, PieChart, TrendingUp, Heart, Percent, Users, Scale, Download, FileSpreadsheet, Stethoscope
 } from 'lucide-react';
 
 interface StaffPortalProps {
@@ -282,6 +282,8 @@ export default function StaffPortal({
         'สถานะ EKG': res?.parameters?.ekg?.status || '-',
         'ตรวจหมู่โลหิต (Blood Group ABO)': res?.parameters?.bloodGroup?.value ?? '-',
         'สถานะ Blood Group': res?.parameters?.bloodGroup?.status || '-',
+        'ตรวจ Memmogram (Mammogram)': res?.parameters?.mammogram?.value ?? '-',
+        'สถานะ Memmogram': res?.parameters?.mammogram?.status || '-',
 
         'สรุปภาพรวมจากแพทย์': res?.summary || '-',
         'คำแนะนำการปฏิบัติตัว': res?.recommendations?.join('; ') || '-',
@@ -698,6 +700,9 @@ export default function StaffPortal({
         if (key === 'creatinine' || key === 'bun') {
           recs.push('ควบคุมปริมาณโซเดียมในอาหาร และปรึกษาแพทย์เฉพาะทางเพื่อประเมินสุขภาพไตเพิ่มเติม');
         }
+        if (key === 'mammogram') {
+          recs.push('ผลตรวจแมมโมแกรม (Memmogram) พบความผิดปกติ ควรปรึกษาแพทย์เฉพาะทางด้านเต้านมเพื่อประเมินอย่างละเอียด');
+        }
       }
     });
 
@@ -828,13 +833,13 @@ export default function StaffPortal({
   if (!isStaffLoggedIn) {
     return (
       <div className="max-w-md mx-auto">
-        <div className="bg-white rounded-3xl shadow-lg border border-[#E0E4D9] overflow-hidden">
-          <div className="bg-[#4A6741] px-6 py-8 text-center text-white relative">
-            <div className="absolute inset-0 bg-white opacity-5 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]"></div>
-            <ShieldCheck className="h-10 w-10 text-green-100 mx-auto mb-3 animate-pulse" />
-            <h3 className="text-xl font-bold">เข้าสู่ระบบสำหรับเจ้าหน้าที่และแพทย์</h3>
-            <p className="text-xs text-green-100/90 mt-1">
-              โรงพยาบาลมหาวิทยาลัยอุบลราชธานี
+        <div className="bg-white rounded-3xl shadow-lg border border-slate-200 overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-950 via-blue-900 to-sky-900 px-6 py-8 text-center text-white relative border-b-4 border-sky-400">
+            <div className="absolute inset-0 bg-white opacity-5 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:16px_16px]"></div>
+            <ShieldCheck className="h-10 w-10 text-sky-300 mx-auto mb-3 animate-pulse" />
+            <h3 className="text-xl font-black tracking-tight">เข้าสู่ระบบสำหรับเจ้าหน้าที่และแพทย์</h3>
+            <p className="text-xs text-sky-200 mt-1">
+              ศูนย์ตรวจสุขภาพ โรงพยาบาลมหาวิทยาลัยอุบลราชธานี
             </p>
           </div>
 
@@ -846,28 +851,28 @@ export default function StaffPortal({
               </div>
             )}
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
                 รหัสผ่านพิเศษเจ้าหน้าที่ (Staff Passcode)
               </label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
+                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
                 <input
                   type="password"
                   placeholder="กรอกรหัสผ่านเพื่อยืนยันสิทธิ์"
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
-                  className="pl-10 pr-4 py-3 w-full border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#4A6741] focus:border-transparent font-mono"
+                  className="pl-10 pr-4 py-3 w-full border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent font-mono"
                   required
                 />
               </div>
-              <p className="text-[10px] text-gray-400 leading-normal">
+              <p className="text-[10px] text-slate-400 leading-normal">
                 * กรุณาใส่รหัสผ่านพิเศษของเจ้าหน้าที่ เพื่อความปลอดภัยในการเข้าตรวจสอบข้อมูลผู้เข้ารับบริการและบันทึกผลตรวจสุขภาพ
               </p>
             </div>
 
             <button
               type="submit"
-              className="w-full bg-[#4A6741] hover:bg-[#3d5635] text-white font-bold py-3 px-4 rounded-xl text-sm shadow-sm hover:shadow transition-all cursor-pointer text-center"
+              className="w-full bg-gradient-to-r from-blue-700 to-sky-600 hover:from-blue-800 hover:to-sky-700 text-white font-bold py-3.5 px-4 rounded-xl text-sm shadow-md hover:shadow-lg transition-all cursor-pointer text-center"
             >
               ยืนยันการเข้าระบบเจ้าหน้าที่
             </button>
@@ -1178,14 +1183,14 @@ export default function StaffPortal({
       {/* Selection layout for Active results recording */}
       {selectedAppointment ? (
         // RESULT RECORDER SHEET
-        <div className="bg-white rounded-3xl border border-[#E0E4D9] shadow-sm overflow-hidden">
-          <div className="bg-[#4A6741] text-white p-6 flex justify-between items-center">
+        <div className="bg-white rounded-3xl border border-[#CBD5E1] shadow-sm overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-950 via-blue-900 to-sky-900 text-white p-6 flex justify-between items-center border-b-4 border-sky-400">
             <div>
-              <span className="text-[10px] font-bold tracking-widest text-green-100 uppercase block font-mono">
-                Medical Records Entry Form
+              <span className="text-[10px] font-black tracking-widest text-sky-300 uppercase block font-mono">
+                Official Medical Records Entry Form
               </span>
-              <h3 className="text-lg font-bold">บันทึกผลแลปตรวจสุขภาพและภาพเอกซเรย์</h3>
-              <p className="text-xs text-green-100/90 mt-0.5">
+              <h3 className="text-xl font-black">บันทึกผลแลปตรวจสุขภาพและภาพเอกซเรย์</h3>
+              <p className="text-xs text-sky-200 mt-0.5">
                 กำลังบันทึกข้อมูลให้กับ: <span className="text-white font-bold underline">
                   {patients.find(p => p.id === selectedAppointment.patientId)?.name}
                 </span>
@@ -1193,7 +1198,7 @@ export default function StaffPortal({
             </div>
             <button
               onClick={() => setSelectedAppointment(null)}
-              className="bg-white/10 hover:bg-white/20 text-xs font-semibold px-3.5 py-1.5 rounded-lg border border-white/10 transition-colors cursor-pointer"
+              className="bg-white/10 hover:bg-white/20 text-xs font-bold text-sky-200 hover:text-white px-4 py-2 rounded-xl border border-white/20 transition-colors cursor-pointer"
             >
               ยกเลิกและย้อนกลับ
             </button>
@@ -1206,14 +1211,14 @@ export default function StaffPortal({
               const latestAssessment = patientAssessments.length > 0 ? patientAssessments[patientAssessments.length - 1] : null;
 
               return (
-                <div className="bg-[#4A6741]/5 p-5 rounded-2xl border border-[#4A6741]/20 space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#4A6741]/10 pb-2.5 gap-2">
-                    <h4 className="text-sm font-bold text-[#4A6741] flex items-center gap-2">
-                      <Activity className="h-5 w-5 text-[#4A6741] animate-pulse" />
+                <div className="bg-[#1E3A8A]/5 p-5 rounded-2xl border border-[#1E3A8A]/20 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#1E3A8A]/10 pb-2.5 gap-2">
+                    <h4 className="text-sm font-bold text-[#1E3A8A] flex items-center gap-2">
+                      <Activity className="h-5 w-5 text-[#1E3A8A] animate-pulse" />
                       <span>ข้อมูลประกอบการพิจารณาแพทย์: ผลการประเมินวิถีชีวิต (Lifestyle Medicine - LM6)</span>
                     </h4>
                     {latestAssessment && (
-                      <span className="text-[10px] bg-[#4A6741] text-white px-2.5 py-1 rounded-full font-bold">
+                      <span className="text-[10px] bg-[#1E3A8A] text-white px-2.5 py-1 rounded-full font-bold">
                         ทำแบบประเมินเมื่อ {latestAssessment.date}
                       </span>
                     )}
@@ -1230,10 +1235,10 @@ export default function StaffPortal({
                           const pillarInfo = LM6_PILLARS_DETAILS[key as keyof typeof LM6_PILLARS_DETAILS];
                           if (!pillarInfo) return null;
                           return (
-                            <div key={key} className="bg-white p-3.5 rounded-xl border border-[#E0E4D9] flex flex-col justify-between shadow-2xs hover:shadow-xs transition-shadow">
+                            <div key={key} className="bg-white p-3.5 rounded-xl border border-[#CBD5E1] flex flex-col justify-between shadow-2xs hover:shadow-xs transition-shadow">
                               <div className="flex justify-between items-start gap-2 mb-1.5">
                                 <span className="font-extrabold text-xs text-gray-800 leading-tight">{pillarInfo.title}</span>
-                                <span className="font-mono text-xs font-bold text-[#4A6741] whitespace-nowrap">{val} / 15</span>
+                                <span className="font-mono text-xs font-bold text-[#1E3A8A] whitespace-nowrap">{val} / 15</span>
                               </div>
                               <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden mb-1.5">
                                 <div
@@ -1254,8 +1259,8 @@ export default function StaffPortal({
                       </div>
 
                       {latestAssessment.recommendations && latestAssessment.recommendations.length > 0 && (
-                        <div className="bg-white p-4 rounded-xl border border-[#E0E4D9]/80 text-xs shadow-3xs space-y-2">
-                          <p className="font-bold text-[#4A6741] flex items-center gap-1">
+                        <div className="bg-white p-4 rounded-xl border border-[#CBD5E1]/80 text-xs shadow-3xs space-y-2">
+                          <p className="font-bold text-[#1E3A8A] flex items-center gap-1">
                             <span>💡 แนวทางการดูแลรักษาผู้รับบริการตามหลักเวชศาสตร์วิถีชีวิต:</span>
                           </p>
                           <ul className="list-disc pl-4 space-y-1 text-gray-600 text-[11px] leading-relaxed">
@@ -1267,7 +1272,7 @@ export default function StaffPortal({
                       )}
                     </div>
                   ) : (
-                    <div className="text-center py-5 bg-white rounded-xl border border-dashed border-[#E0E4D9]">
+                    <div className="text-center py-5 bg-white rounded-xl border border-dashed border-[#CBD5E1]">
                       <AlertCircle className="h-6 w-6 text-gray-400 mx-auto mb-2" />
                       <p className="text-xs font-bold text-gray-500">ยังไม่พบบันทึกการทำแบบประเมินพฤติกรรมสุขภาพ (LM6) ของคนไข้รายนี้</p>
                       <p className="text-[10px] text-gray-400 mt-1">ท่านสามารถแนะนำให้คนไข้ทำแบบประเมินในพอร์ทัลผู้ป่วย เพื่อผลประเมินที่ครบถ้วน</p>
@@ -1279,10 +1284,12 @@ export default function StaffPortal({
 
             {/* 1. Body composition Physical */}
             <div className="space-y-4">
-              <h4 className="text-sm font-bold text-[#4A6741] uppercase tracking-wider border-b pb-1.5 flex items-center space-x-1 border-[#E0E4D9]">
-                <ClipboardList className="h-4 w-4" />
-                <span>1. ผลการตรวจร่างกายและสัญญาณชีพทั่วไป</span>
-              </h4>
+              <div className="bg-gradient-to-r from-blue-900 to-sky-800 text-white px-4 py-2.5 rounded-xl flex items-center justify-between shadow-xs">
+                <span className="text-xs sm:text-sm font-bold flex items-center gap-2">
+                  <ClipboardList className="h-4 w-4 text-sky-300" />
+                  <span>1. ผลการตรวจร่างกายและสัญญาณชีพทั่วไป (Physical Exam & Vital Signs)</span>
+                </span>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
                 <div className="space-y-1">
                   <label className="font-bold text-gray-500">น้ำหนักตัว (กิโลกรัม)</label>
@@ -1291,7 +1298,7 @@ export default function StaffPortal({
                     value={weight}
                     onChange={(e) => setWeight(e.target.value === '' ? '' : Number(e.target.value))}
                     placeholder="ระบุน้ำหนัก"
-                    className="p-2 border border-gray-200 rounded-lg w-full font-mono text-sm focus:outline-none focus:ring-1 focus:ring-[#4A6741]"
+                    className="p-2 border border-gray-200 rounded-lg w-full font-mono text-sm focus:outline-none focus:ring-1 focus:ring-[#1E3A8A]"
                     required={saveMode === 'complete'}
                   />
                 </div>
@@ -1302,7 +1309,7 @@ export default function StaffPortal({
                     value={height}
                     onChange={(e) => setHeight(e.target.value === '' ? '' : Number(e.target.value))}
                     placeholder="ระบุส่วนสูง"
-                    className="p-2 border border-gray-200 rounded-lg w-full font-mono text-sm focus:outline-none focus:ring-1 focus:ring-[#4A6741]"
+                    className="p-2 border border-gray-200 rounded-lg w-full font-mono text-sm focus:outline-none focus:ring-1 focus:ring-[#1E3A8A]"
                     required={saveMode === 'complete'}
                   />
                 </div>
@@ -1313,13 +1320,13 @@ export default function StaffPortal({
                     placeholder="ระบุรอบเอวเป็นเซนติเมตร"
                     value={waistline}
                     onChange={(e) => setWaistline(e.target.value)}
-                    className="p-2 border border-gray-200 rounded-lg w-full font-mono text-sm focus:outline-none focus:ring-1 focus:ring-[#4A6741]"
+                    className="p-2 border border-gray-200 rounded-lg w-full font-mono text-sm focus:outline-none focus:ring-1 focus:ring-[#1E3A8A]"
                   />
                 </div>
-                <div className="space-y-1 bg-[#F9FAF7] p-2 rounded-lg border border-dashed border-[#E0E4D9] text-center">
+                <div className="space-y-1 bg-[#F8FAFC] p-2 rounded-lg border border-dashed border-[#CBD5E1] text-center">
                   <label className="font-bold text-gray-400 block mb-0.5">ดัชนีมวลกาย (BMI)</label>
                   <span className="text-sm font-extrabold font-mono text-gray-800">{bmi}</span>
-                  <span className="text-[10px] text-[#4A6741] block font-semibold line-clamp-1">{bmiStatus}</span>
+                  <span className="text-[10px] text-[#1E3A8A] block font-semibold line-clamp-1">{bmiStatus}</span>
                 </div>
                 <div className="space-y-1">
                   <label className="font-bold text-gray-500">ความดันโลหิต (mmHg)</label>
@@ -1328,7 +1335,7 @@ export default function StaffPortal({
                     value={bp}
                     onChange={(e) => setBp(e.target.value)}
                     placeholder="เช่น 120/80"
-                    className="p-2 border border-gray-200 rounded-lg w-full font-mono text-sm focus:outline-none focus:ring-1 focus:ring-[#4A6741]"
+                    className="p-2 border border-gray-200 rounded-lg w-full font-mono text-sm focus:outline-none focus:ring-1 focus:ring-[#1E3A8A]"
                     required={saveMode === 'complete'}
                   />
                 </div>
@@ -1339,7 +1346,7 @@ export default function StaffPortal({
                     value={hr}
                     onChange={(e) => setHr(e.target.value === '' ? '' : Number(e.target.value))}
                     placeholder="ระบุอัตราการเต้นหัวใจ"
-                    className="p-2 border border-gray-200 rounded-lg w-full font-mono text-sm focus:outline-none focus:ring-1 focus:ring-[#4A6741]"
+                    className="p-2 border border-gray-200 rounded-lg w-full font-mono text-sm focus:outline-none focus:ring-1 focus:ring-[#1E3A8A]"
                     required={saveMode === 'complete'}
                   />
                 </div>
@@ -1348,7 +1355,7 @@ export default function StaffPortal({
                   <select
                     value={generalStatus}
                     onChange={(e) => setGeneralStatus(e.target.value as any)}
-                    className="p-2 border border-gray-200 rounded-lg w-full text-sm bg-white focus:outline-none focus:ring-1 focus:ring-[#4A6741]"
+                    className="p-2 border border-gray-200 rounded-lg w-full text-sm bg-white focus:outline-none focus:ring-1 focus:ring-[#1E3A8A]"
                   >
                     <option value="ปกติ">ปกติ</option>
                     <option value="ผิดปกติ">ผิดปกติ</option>
@@ -1363,7 +1370,7 @@ export default function StaffPortal({
                     placeholder="เช่น แข็งแรงปกติ หรือ ความดันโลหิตสูงเล็กน้อย"
                     value={physicalNotes}
                     onChange={(e) => setPhysicalNotes(e.target.value)}
-                    className="p-2 border border-gray-200 rounded-lg w-full text-sm focus:outline-none focus:ring-1 focus:ring-[#4A6741]"
+                    className="p-2 border border-gray-200 rounded-lg w-full text-sm focus:outline-none focus:ring-1 focus:ring-[#1E3A8A]"
                   />
                 </div>
               </div>
@@ -1371,12 +1378,12 @@ export default function StaffPortal({
 
             {/* 2. Chest X-Ray */}
             <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-1.5 border-[#E0E4D9]">
-                <h4 className="text-sm font-bold text-[#4A6741] uppercase tracking-wider flex items-center space-x-1">
-                  <FileText className="h-4 w-4" />
+              <div className="bg-gradient-to-r from-blue-900 to-sky-800 text-white px-4 py-2.5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-xs">
+                <span className="text-xs sm:text-sm font-bold flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-sky-300" />
                   <span>2. การคัดกรองเอกซเรย์ทรวงอก (Chest X-Ray)</span>
-                </h4>
-                <div className="flex items-center space-x-2 mt-2 sm:mt-0 bg-red-50 px-3 py-1 rounded-lg border border-red-100">
+                </span>
+                <div className="flex items-center space-x-2 bg-white/10 px-3 py-1 rounded-lg border border-white/20">
                   <input
                     type="checkbox"
                     id="decline-cxr"
@@ -1392,9 +1399,9 @@ export default function StaffPortal({
                         setCxrDesc('');
                       }
                     }}
-                    className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded cursor-pointer"
+                    className="h-4 w-4 text-sky-400 focus:ring-sky-400 border-gray-300 rounded cursor-pointer"
                   />
-                  <label htmlFor="decline-cxr" className="text-xs font-bold text-red-700 cursor-pointer">
+                  <label htmlFor="decline-cxr" className="text-xs font-bold text-sky-200 cursor-pointer">
                     ผู้รับบริการไม่ประสงค์ตรวจรายการนี้ (Declined)
                   </label>
                 </div>
@@ -1433,10 +1440,12 @@ export default function StaffPortal({
 
             {/* 3. Laboratory values */}
             <div className="space-y-4">
-              <h4 className="text-sm font-bold text-[#4A6741] uppercase tracking-wider border-b pb-1.5 flex items-center space-x-1 border-[#E0E4D9]">
-                <ClipboardList className="h-4 w-4" />
-                <span>3. ข้อมูลผลการตรวจทางห้องปฏิบัติการ (Lab Parameters)</span>
-              </h4>
+              <div className="bg-gradient-to-r from-blue-900 to-sky-800 text-white px-4 py-2.5 rounded-xl flex items-center justify-between shadow-xs">
+                <span className="text-xs sm:text-sm font-bold flex items-center gap-2">
+                  <ClipboardList className="h-4 w-4 text-sky-300" />
+                  <span>3. ข้อมูลผลการตรวจทางห้องปฏิบัติการ (Lab Parameters)</span>
+                </span>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
                 {Object.entries(labValues).map(([key, item]) => {
                   const valObj = item as { value: string; status: 'ปกติ' | 'ผิดปกติ' | 'เสี่ยงสูง' | 'เสี่ยงต่ำ' | 'ไม่ประสงค์ตรวจ' };
@@ -1444,9 +1453,9 @@ export default function StaffPortal({
                   if (!meta) return null;
                   const isDeclined = !!declinedTests[key];
                   return (
-                    <div key={key} className={`p-3.5 rounded-xl border flex flex-col justify-between space-y-2 transition-all ${isDeclined ? 'bg-red-50/40 border-red-200' : 'bg-[#F9FAF7] border-[#E0E4D9]'}`}>
+                    <div key={key} className={`p-3.5 rounded-xl border flex flex-col justify-between space-y-2 transition-all ${isDeclined ? 'bg-red-50/40 border-red-200' : 'bg-[#F8FAFC] border-[#CBD5E1]'}`}>
                       <div>
-                        <div className="flex justify-between font-bold text-[#4A6741]">
+                        <div className="flex justify-between font-bold text-[#1E3A8A]">
                           <span>{meta.name}</span>
                         </div>
                         <p className="text-[9px] text-gray-400 mb-2">ค่าปกติ: {meta.refRange} {meta.unit}</p>
@@ -1464,7 +1473,7 @@ export default function StaffPortal({
                               [key]: { ...valObj, value: e.target.value }
                             });
                           }}
-                          className="p-1.5 border border-gray-200 rounded bg-white text-sm font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#4A6741] disabled:bg-gray-100 disabled:text-gray-400"
+                          className="p-1.5 border border-gray-200 rounded bg-white text-sm font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#1E3A8A] disabled:bg-gray-100 disabled:text-gray-400"
                         />
                         <select
                           value={isDeclined ? 'ไม่ประสงค์ตรวจ' : valObj.status}
@@ -1515,15 +1524,17 @@ export default function StaffPortal({
 
             {/* 4. PDF ATTACHMENT PORTION */}
             <div className="space-y-4">
-              <h4 className="text-sm font-bold text-[#4A6741] uppercase tracking-wider border-b pb-1.5 flex items-center space-x-1 border-[#E0E4D9]">
-                <Upload className="h-4 w-4" />
-                <span>4. แนบไฟล์ PDF รายงานผลตรวจเพิ่มเติม (Attached Medical Documents)</span>
-              </h4>
+              <div className="bg-gradient-to-r from-blue-900 to-sky-800 text-white px-4 py-2.5 rounded-xl flex items-center justify-between shadow-xs">
+                <span className="text-xs sm:text-sm font-bold flex items-center gap-2">
+                  <Upload className="h-4 w-4 text-sky-300" />
+                  <span>4. แนบไฟล์ PDF รายงานผลตรวจเพิ่มเติม (Attached Medical Documents)</span>
+                </span>
+              </div>
               <p className="text-xs text-gray-400 leading-normal">
                 สิทธิ์ในการเพิ่มไฟล์เอกสารโรงพยาบาล เช่น ผลวิเคราะห์จากเครื่องมือเฉพาะทาง ใบวิเคราะห์เลือด ดึงผลคีย์บันทึกคู่กับรายการตรวจ
               </p>
 
-              <div className="bg-[#F9FAF7] p-4 rounded-xl border border-dashed border-[#E0E4D9] flex flex-col sm:flex-row gap-4 items-end">
+              <div className="bg-[#F8FAFC] p-4 rounded-xl border border-dashed border-[#CBD5E1] flex flex-col sm:flex-row gap-4 items-end">
                 <div className="space-y-1 flex-1 text-xs">
                   <label className="font-bold text-gray-500">เลือกหัวข้อรายการตรวจที่ต้องการแนบ</label>
                   <select
@@ -1536,6 +1547,7 @@ export default function StaffPortal({
                     <option value="Urine Analysis">Urine Analysis (ผลตรวจปัสสาวะ)</option>
                     <option value="Stool Exam">Stool Exam (ผลตรวจอุจจาระ)</option>
                     <option value="Cervical Cancer Screening">Cervical Cancer Screening (คัดกรองมะเร็งปากมดลูก)</option>
+                    <option value="Mammogram Result">Mammogram Result (ผลตรวจแมมโมแกรม / Memmogram)</option>
                     <option value="Lipid Profile">Lipid Profile (ผลไขมัน)</option>
                     <option value="Thyroid Panel">Thyroid Panel (ผลไทรอยด์)</option>
                     <option value="Cancer Markers">Cancer Markers (สารบ่งชี้มะเร็ง)</option>
@@ -1547,7 +1559,7 @@ export default function StaffPortal({
                 </div>
 
                 <div className="shrink-0">
-                  <label className="inline-flex items-center space-x-2 bg-[#4A6741] hover:bg-[#3d5635] text-white font-bold py-2 px-4 rounded-xl text-xs transition-all cursor-pointer">
+                  <label className="inline-flex items-center space-x-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-bold py-2 px-4 rounded-xl text-xs transition-all cursor-pointer">
                     <FileUp className="h-4 w-4" />
                     <span>กดอัปโหลดไฟล์ PDF</span>
                     <input
@@ -1566,7 +1578,7 @@ export default function StaffPortal({
                   <p className="text-xs font-bold text-gray-500">รายการไฟล์แนบที่ผูกกับรายงานตรวจสุขภาพแล้ว:</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     {uploadedFiles.map((file) => (
-                      <div key={file.id} className="bg-white p-3 border border-[#E0E4D9] rounded-xl flex items-center justify-between">
+                      <div key={file.id} className="bg-white p-3 border border-[#CBD5E1] rounded-xl flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <div className="bg-red-50 text-red-600 p-1.5 rounded">
                             <FileText className="h-4 w-4" />
@@ -1592,17 +1604,20 @@ export default function StaffPortal({
 
             {/* 5. Medical Diagnosis Summary */}
             <div className="space-y-4">
-              <h4 className="text-sm font-bold text-[#4A6741] uppercase tracking-wider border-b pb-1.5 flex justify-between items-center border-[#E0E4D9]">
-                <span>5. สรุปความเห็นของแพทย์และคำแนะนำส่วนบุคคล</span>
+              <div className="bg-gradient-to-r from-blue-900 to-sky-800 text-white px-4 py-2.5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-xs">
+                <span className="text-xs sm:text-sm font-bold flex items-center gap-2">
+                  <Stethoscope className="h-4 w-4 text-sky-300" />
+                  <span>5. สรุปความเห็นของแพทย์และคำแนะนำส่วนบุคคล (Clinical Impression & Advice)</span>
+                </span>
                 <button
                   type="button"
                   onClick={triggerAutoSuggestions}
-                  className="inline-flex items-center space-x-1.5 text-xs text-[#4A6741] font-bold bg-[#F2F4ED] border border-[#E0E4D9] px-3 py-1.5 rounded-lg hover:bg-[#E0E4D9] transition-colors cursor-pointer"
+                  className="inline-flex items-center space-x-1.5 text-xs text-blue-950 font-bold bg-sky-200 hover:bg-sky-100 px-3 py-1.5 rounded-lg transition-colors cursor-pointer shrink-0"
                 >
-                  <RefreshCw className="h-3 w-3" />
+                  <RefreshCw className="h-3 w-3 text-blue-900" />
                   <span>วิเคราะห์ผลและสร้างคำแนะนำอัตโนมัติ</span>
                 </button>
-              </h4>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                 <div className="space-y-4">
@@ -1613,7 +1628,7 @@ export default function StaffPortal({
                       value={doctorName}
                       onChange={(e) => setDoctorName(e.target.value)}
                       placeholder="ระบุชื่อแพทย์ เช่น พญ. นภัสวรรณ อุ่นใจ"
-                      className="p-2 border border-gray-200 rounded-lg w-full text-sm font-semibold text-[#4A6741] focus:outline-none"
+                      className="p-2 border border-gray-200 rounded-lg w-full text-sm font-semibold text-[#1E3A8A] focus:outline-none"
                       required={saveMode === 'complete'}
                     />
                   </div>
@@ -1624,7 +1639,7 @@ export default function StaffPortal({
                       value={doctorLicense}
                       onChange={(e) => setDoctorLicense(e.target.value)}
                       placeholder="ระบุเลข ว. เช่น ว.70369"
-                      className="p-2 border border-gray-200 rounded-lg w-full text-sm font-semibold text-[#4A6741] focus:outline-none font-mono"
+                      className="p-2 border border-gray-200 rounded-lg w-full text-sm font-semibold text-[#1E3A8A] focus:outline-none font-mono"
                       required={saveMode === 'complete'}
                     />
                   </div>
@@ -1663,7 +1678,7 @@ export default function StaffPortal({
             </div>
 
             {/* Submit Actions */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-[#E0E4D9]">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-[#CBD5E1]">
               <button
                 type="submit"
                 formNoValidate
@@ -1681,7 +1696,7 @@ export default function StaffPortal({
                   saveModeRef.current = 'complete';
                   setSaveMode('complete');
                 }}
-                className="flex-1 bg-[#4A6741] hover:bg-[#3d5635] text-white font-extrabold py-3.5 px-4 rounded-xl text-sm shadow-sm hover:shadow transition-all cursor-pointer text-center flex items-center justify-center space-x-2"
+                className="flex-1 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-extrabold py-3.5 px-4 rounded-xl text-sm shadow-sm hover:shadow transition-all cursor-pointer text-center flex items-center justify-center space-x-2"
               >
                 <span>บันทึกและแสดงรายงาน PDF</span>
               </button>
@@ -1691,61 +1706,64 @@ export default function StaffPortal({
       ) : (
         // STAFF DIRECTORY AND APPOINTMENT DASHBOARD
         <div className="space-y-8">
-          {/* Quick Header */}
-          <div className="bg-[#4A6741] text-white p-6 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative overflow-hidden text-left">
-            <div className="absolute inset-0 bg-white opacity-5 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]"></div>
-            <div className="relative z-10">
-              <h3 className="text-xl font-bold">ระบบบริหารจัดการสำหรับเจ้าหน้าที่คัดกรอง</h3>
-              <p className="text-xs text-green-100/95">สถิติแดชบอร์ดสุขภาพ ตรวจสอบฐานข้อมูลคนไข้ เผยรหัสผ่าน และกรอกผลตรวจแลป</p>
+          {/* Quick Header Ribbon Banner */}
+          <div className="bg-gradient-to-r from-blue-950 via-blue-900 to-sky-900 text-white p-6 sm:p-7 rounded-3xl shadow-md border-t-4 border-sky-400 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative overflow-hidden text-left">
+            <div className="absolute inset-0 bg-white opacity-5 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:16px_16px]"></div>
+            <div className="relative z-10 space-y-1">
+              <span className="text-[10px] font-black uppercase tracking-widest text-sky-300 font-mono bg-sky-500/20 px-2.5 py-0.5 rounded border border-sky-400/30">
+                Staff & Physician Workspace
+              </span>
+              <h3 className="text-xl sm:text-2xl font-black tracking-tight">ระบบบริหารจัดการศูนย์ตรวจสุขภาพ</h3>
+              <p className="text-xs text-sky-200">สถิติแดชบอร์ดสุขภาพ ตรวจสอบฐานข้อมูลคนไข้ เผยรหัสผ่าน และกรอกบันทึกผลตรวจแลป</p>
             </div>
-            <div className="bg-white/20 border border-white/10 px-4 py-2 rounded-xl text-xs font-mono text-white font-bold relative z-10 shrink-0">
-              PORTAL MODE: STAFF ACCESS GRANTED
+            <div className="bg-sky-500/20 border border-sky-400/30 px-3.5 py-1.5 rounded-xl text-xs font-mono text-sky-200 font-bold relative z-10 shrink-0">
+              ● STAFF ACCESS ACTIVE
             </div>
           </div>
 
-          {/* Tab Selection Bar */}
-          <div className="flex flex-wrap border-b border-[#E0E4D9] gap-2">
+          {/* Tab Selection Ribbon Bar (แถบเมนูหลักของเจ้าหน้าที่) */}
+          <div className="flex flex-wrap bg-white p-1.5 rounded-2xl border border-slate-200 shadow-3xs gap-1.5">
             <button
               onClick={() => setStaffActiveTab('dashboard')}
-              className={`px-5 py-3 text-xs font-black flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
+              className={`flex-1 min-w-[200px] py-2.5 px-4 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 ${
                 staffActiveTab === 'dashboard'
-                  ? 'border-[#4A6741] text-[#4A6741] bg-[#4A6741]/5 font-black'
-                  : 'border-transparent text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                  ? 'bg-gradient-to-r from-blue-700 to-sky-600 text-white shadow-sm shadow-blue-500/20'
+                  : 'text-slate-600 hover:text-blue-700 hover:bg-slate-50'
               }`}
             >
-              <BarChart3 className="h-4.5 w-4.5" />
-              <span>📊 แดชบอร์ดภาพรวมสุขภาพ (Health Dashboard)</span>
+              <BarChart3 className="h-4 w-4" />
+              <span>1. แดชบอร์ดภาพรวมสุขภาพ (Dashboard)</span>
             </button>
             <button
               onClick={() => setStaffActiveTab('registry')}
-              className={`px-5 py-3 text-xs font-black flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
+              className={`flex-1 min-w-[200px] py-2.5 px-4 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 ${
                 staffActiveTab === 'registry'
-                  ? 'border-[#4A6741] text-[#4A6741] bg-[#4A6741]/5 font-black'
-                  : 'border-transparent text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                  ? 'bg-gradient-to-r from-blue-700 to-sky-600 text-white shadow-sm shadow-blue-500/20'
+                  : 'text-slate-600 hover:text-blue-700 hover:bg-slate-50'
               }`}
             >
-              <User className="h-4.5 w-4.5" />
-              <span>👥 บัญชีข้อมูลผู้รับบริการ [{db_totalPatients} คน]</span>
+              <User className="h-4 w-4" />
+              <span>2. ฐานข้อมูลผู้รับบริการ [{db_totalPatients} คน]</span>
             </button>
             <button
               onClick={() => setStaffActiveTab('appointments')}
-              className={`px-5 py-3 text-xs font-black flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
+              className={`flex-1 min-w-[200px] py-2.5 px-4 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 ${
                 staffActiveTab === 'appointments'
-                  ? 'border-[#4A6741] text-[#4A6741] bg-[#4A6741]/5 font-black'
-                  : 'border-transparent text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                  ? 'bg-gradient-to-r from-blue-700 to-sky-600 text-white shadow-sm shadow-blue-500/20'
+                  : 'text-slate-600 hover:text-blue-700 hover:bg-slate-50'
               }`}
             >
-              <Calendar className="h-4.5 w-4.5" />
-              <span>📅 รายการตรวจและลงผลคิวแลป [{db_totalAppointments} คิว]</span>
+              <Calendar className="h-4 w-4" />
+              <span>3. คิวตรวจและบันทึกผลแลป [{db_totalAppointments} คิว]</span>
             </button>
           </div>
 
           {/* CONDITIONAL RENDER: PATIENT DIRECTORY DATABASE SECTION */}
           {staffActiveTab === 'registry' && (
-            <div className="bg-white rounded-2xl border border-[#E0E4D9] shadow-sm p-6 space-y-4 text-left">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[#E0E4D9] pb-4">
-                <h4 className="font-bold text-[#4A6741] text-base flex items-center space-x-1.5">
-                  <User className="h-5 w-5 text-[#4A6741]" />
+            <div className="bg-white rounded-2xl border border-[#CBD5E1] shadow-sm p-6 space-y-4 text-left">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[#CBD5E1] pb-4">
+                <h4 className="font-bold text-[#1E3A8A] text-base flex items-center space-x-1.5">
+                  <User className="h-5 w-5 text-[#1E3A8A]" />
                   <span>บัญชีข้อมูลผู้รับบริการและรหัสผ่าน (Patient Registry)</span>
                 </h4>
                 <div className="relative w-full sm:w-80 text-xs">
@@ -1755,24 +1773,24 @@ export default function StaffPortal({
                     placeholder="ค้นหาด้วย ชื่อ หรือ เบอร์โทรศัพท์..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl w-full focus:outline-none focus:ring-1 focus:ring-[#4A6741] bg-white text-sm"
+                    className="pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl w-full focus:outline-none focus:ring-1 focus:ring-[#1E3A8A] bg-white text-sm"
                   />
                 </div>
               </div>
 
-              <div className="overflow-x-auto border border-[#E0E4D9] rounded-xl">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-[#F2F4ED] text-xs font-bold text-[#2D3E2F]">
+              <div className="overflow-x-auto border border-blue-200/80 rounded-2xl shadow-3xs overflow-hidden">
+                <table className="min-w-full divide-y divide-blue-100">
+                  <thead className="bg-gradient-to-r from-blue-950 via-blue-900 to-sky-900 text-white text-xs font-bold">
                     <tr>
-                      <th scope="col" className="px-4 py-3 text-left uppercase">ชื่อผู้รับบริการ</th>
-                      <th scope="col" className="px-4 py-3 text-left uppercase">วันเดือนปีเกิด (ค.ศ.)</th>
-                      <th scope="col" className="px-4 py-3 text-center uppercase">HN (เลขประจำตัวคนไข้)</th>
-                      <th scope="col" className="px-4 py-3 text-center uppercase">อายุ / เพศ</th>
-                      <th scope="col" className="px-4 py-3 text-center uppercase bg-[#4A6741]/10 text-[#4A6741]">
+                      <th scope="col" className="px-4 py-3.5 text-left uppercase tracking-wider text-sky-100">ชื่อผู้รับบริการ</th>
+                      <th scope="col" className="px-4 py-3.5 text-left uppercase tracking-wider text-sky-100">วันเดือนปีเกิด (ค.ศ.)</th>
+                      <th scope="col" className="px-4 py-3.5 text-center uppercase tracking-wider text-sky-100">HN (เลขประจำตัวคนไข้)</th>
+                      <th scope="col" className="px-4 py-3.5 text-center uppercase tracking-wider text-sky-100">อายุ / เพศ</th>
+                      <th scope="col" className="px-4 py-3.5 text-center uppercase tracking-wider bg-sky-500/20 text-sky-200 border-x border-white/10">
                         รหัสผ่านที่ตั้งเอง (Password)
                       </th>
-                      <th scope="col" className="px-4 py-3 text-center uppercase">เบอร์โทรศัพท์</th>
-                      <th scope="col" className="px-4 py-3 text-center uppercase">การจัดการ</th>
+                      <th scope="col" className="px-4 py-3.5 text-center uppercase tracking-wider text-sky-100">เบอร์โทรศัพท์</th>
+                      <th scope="col" className="px-4 py-3.5 text-center uppercase tracking-wider text-sky-100">การจัดการ</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-100 text-xs">
@@ -1783,13 +1801,13 @@ export default function StaffPortal({
                           <td className="px-4 py-3 font-mono text-gray-500">
                             {patient.birthDate ? new Date(patient.birthDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}
                           </td>
-                          <td className="px-4 py-3 text-center font-mono font-semibold text-[#4A6741]">
+                          <td className="px-4 py-3 text-center font-mono font-semibold text-[#1E3A8A]">
                             {patient.hn || <span className="text-gray-300">ไม่มี</span>}
                           </td>
                           <td className="px-4 py-3 text-center font-medium">
                             {patient.age} ปี / {patient.gender === 'female' ? 'หญิง' : 'ชาย'}
                           </td>
-                          <td className="px-4 py-3 text-center font-mono font-extrabold text-[#4A6741] bg-[#F9FAF7] border-x border-[#E0E4D9]">
+                          <td className="px-4 py-3 text-center font-mono font-extrabold text-[#1E3A8A] bg-[#F8FAFC] border-x border-[#CBD5E1]">
                             {patient.password}
                           </td>
                           <td className="px-4 py-3 text-center font-mono text-gray-500">{patient.phone}</td>
@@ -1798,7 +1816,7 @@ export default function StaffPortal({
                               <button
                                 type="button"
                                 onClick={() => handleOpenEditModal(patient)}
-                                className="bg-[#4A6741] hover:bg-[#3d5635] text-white font-bold py-1.5 px-2.5 rounded text-[11px] shadow-sm transition-all cursor-pointer inline-flex items-center space-x-1"
+                                className="bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-bold py-1.5 px-2.5 rounded text-[11px] shadow-sm transition-all cursor-pointer inline-flex items-center space-x-1"
                               >
                                 <Edit2 className="h-3.5 w-3.5" />
                                 <span>แก้ไข</span>
@@ -1834,41 +1852,41 @@ export default function StaffPortal({
             <div className="space-y-6 text-left">
               {/* Top Summary Stats Cards Grid */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-gradient-to-br from-[#4A6741]/5 to-[#4A6741]/10 border border-[#4A6741]/20 p-5 rounded-2xl flex items-center justify-between shadow-2xs">
+                <div className="bg-white border-t-4 border-blue-900 border-x border-b border-slate-200 p-5 rounded-2xl flex items-center justify-between shadow-3xs">
                   <div className="space-y-1">
-                    <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">ผู้ลงทะเบียนทั้งหมด</p>
-                    <h3 className="text-3xl font-black text-[#4A6741] font-mono">{db_totalPatients} <span className="text-sm font-semibold text-gray-400">ราย</span></h3>
+                    <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">ผู้ลงทะเบียนทั้งหมด</p>
+                    <h3 className="text-3xl font-black text-blue-950 font-mono">{db_totalPatients} <span className="text-sm font-semibold text-slate-400">ราย</span></h3>
                   </div>
-                  <div className="p-3.5 bg-[#4A6741] text-white rounded-xl">
+                  <div className="p-3.5 bg-gradient-to-br from-blue-950 to-blue-800 text-white rounded-xl shadow-xs">
                     <User className="h-6 w-6" />
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-[#4A6741]/5 to-[#4A6741]/10 border border-[#4A6741]/20 p-5 rounded-2xl flex items-center justify-between shadow-2xs">
+                <div className="bg-white border-t-4 border-blue-700 border-x border-b border-slate-200 p-5 rounded-2xl flex items-center justify-between shadow-3xs">
                   <div className="space-y-1">
-                    <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">คิวนัดหมายตรวจจริง</p>
-                    <h3 className="text-3xl font-black text-[#4A6741] font-mono">{db_totalAppointments} <span className="text-sm font-semibold text-gray-400">คิว</span></h3>
+                    <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">คิวนัดหมายตรวจจริง</p>
+                    <h3 className="text-3xl font-black text-blue-950 font-mono">{db_totalAppointments} <span className="text-sm font-semibold text-slate-400">คิว</span></h3>
                   </div>
-                  <div className="p-3.5 bg-[#4A6741] text-white rounded-xl">
+                  <div className="p-3.5 bg-gradient-to-br from-blue-700 to-sky-700 text-white rounded-xl shadow-xs">
                     <Calendar className="h-6 w-6" />
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-blue-500/5 to-blue-500/10 border border-blue-500/20 p-5 rounded-2xl flex items-center justify-between shadow-2xs">
+                <div className="bg-white border-t-4 border-sky-500 border-x border-b border-slate-200 p-5 rounded-2xl flex items-center justify-between shadow-3xs">
                   <div className="space-y-1">
-                    <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">สัดส่วนผู้เข้ารับบริการ (ช/ญ)</p>
-                    <h3 className="text-2xl font-black text-blue-800 font-mono">
-                      {db_maleCount} <span className="text-xs font-semibold text-gray-400">ชาย</span> / {db_femaleCount} <span className="text-xs font-semibold text-gray-400">หญิง</span>
+                    <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">สัดส่วนผู้เข้ารับบริการ (ช/ญ)</p>
+                    <h3 className="text-2xl font-black text-blue-950 font-mono">
+                      {db_maleCount} <span className="text-xs font-semibold text-slate-400">ชาย</span> / {db_femaleCount} <span className="text-xs font-semibold text-slate-400">หญิง</span>
                     </h3>
                   </div>
-                  <div className="p-3.5 bg-blue-600 text-white rounded-xl">
+                  <div className="p-3.5 bg-gradient-to-br from-sky-600 to-sky-500 text-white rounded-xl shadow-xs">
                     <Users className="h-6 w-6" />
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-amber-500/5 to-amber-500/10 border border-amber-500/20 p-5 rounded-2xl flex items-center justify-between shadow-2xs">
+                <div className="bg-white border-t-4 border-amber-500 border-x border-b border-slate-200 p-5 rounded-2xl flex items-center justify-between shadow-3xs">
                   <div className="space-y-1">
-                    <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">ค่าเฉลี่ย BMI ประชากร</p>
+                    <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">ค่าเฉลี่ย BMI ประชากร</p>
                     {(() => {
                       const avgBmi = db_avgHeight > 0 ? (db_avgWeight / ((db_avgHeight / 100) * (db_avgHeight / 100))) : 0;
                       let bmiLabel = "ปกติ";
@@ -1897,10 +1915,10 @@ export default function StaffPortal({
               </div>
 
               {/* Excel Report Export Control Panel */}
-              <div className="bg-white border border-[#E0E4D9] rounded-2xl shadow-xs p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="bg-gradient-to-r from-white via-sky-50/20 to-blue-50/20 border-l-4 border-sky-500 border-y border-r border-slate-200 rounded-2xl shadow-3xs p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-1">
-                  <h4 className="font-extrabold text-[#4A6741] text-sm flex items-center gap-1.5">
-                    <FileSpreadsheet className="h-5 w-5 text-[#4A6741]" />
+                  <h4 className="font-extrabold text-[#1E3A8A] text-sm flex items-center gap-1.5">
+                    <FileSpreadsheet className="h-5 w-5 text-blue-600" />
                     <span>ส่งออกรายงานและผลประเมินสุขภาพ (Excel Export)</span>
                   </h4>
                   <p className="text-[11px] text-gray-500 font-medium">
@@ -1916,7 +1934,7 @@ export default function StaffPortal({
                         type="date"
                         value={exportStartDate}
                         onChange={(e) => setExportStartDate(e.target.value)}
-                        className="text-xs bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#4A6741]/20 focus:border-[#4A6741] text-gray-700 font-medium"
+                        className="text-xs bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 text-gray-700 font-medium"
                       />
                     </div>
                     <span className="text-gray-300 text-xs mt-4">ถึง</span>
@@ -1926,7 +1944,7 @@ export default function StaffPortal({
                         type="date"
                         value={exportEndDate}
                         onChange={(e) => setExportEndDate(e.target.value)}
-                        className="text-xs bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#4A6741]/20 focus:border-[#4A6741] text-gray-700 font-medium"
+                        className="text-xs bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 text-gray-700 font-medium"
                       />
                     </div>
                   </div>
@@ -1945,7 +1963,7 @@ export default function StaffPortal({
                     )}
                     <button
                       onClick={handleExportExcel}
-                      className="text-xs bg-[#4A6741] hover:bg-[#3D5435] text-white font-bold px-4 py-2 rounded-xl shadow-xs hover:shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
+                      className="text-xs bg-gradient-to-r from-blue-700 to-sky-600 hover:from-blue-800 hover:to-sky-700 text-white font-bold px-4 py-2 rounded-xl shadow-xs hover:shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
                     >
                       <Download className="h-4 w-4" />
                       <span>ดาวน์โหลดรายงาน Excel</span>
@@ -1958,10 +1976,10 @@ export default function StaffPortal({
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
                 {/* 1. Demographics & Medical Coverage Distribution (4 Columns) */}
-                <div className="lg:col-span-4 bg-white rounded-2xl border border-[#E0E4D9] shadow-xs p-6 space-y-5">
-                  <div className="border-b border-[#E0E4D9] pb-3">
-                    <h4 className="font-extrabold text-[#4A6741] text-sm flex items-center space-x-1.5">
-                      <Users className="h-4.5 w-4.5 text-[#4A6741]" />
+                <div className="lg:col-span-4 bg-white rounded-2xl border border-[#CBD5E1] shadow-xs p-6 space-y-5">
+                  <div className="border-b border-[#CBD5E1] pb-3">
+                    <h4 className="font-extrabold text-[#1E3A8A] text-sm flex items-center space-x-1.5">
+                      <Users className="h-4.5 w-4.5 text-[#1E3A8A]" />
                       <span>ข้อมูลทั่วไปและสิทธิรักษาพยาบาล</span>
                     </h4>
                   </div>
@@ -2011,7 +2029,7 @@ export default function StaffPortal({
                     <span className="text-[11px] font-bold text-gray-500">ประเภทสิทธิการรักษาพยาบาล (Medical Coverage)</span>
                     <div className="space-y-2">
                       {[
-                        { label: 'สิทธิข้าราชการ/รัฐวิสาหกิจ', count: db_coverageGovernment, color: 'bg-[#4A6741]' },
+                        { label: 'สิทธิข้าราชการ/รัฐวิสาหกิจ', count: db_coverageGovernment, color: 'bg-[#1E3A8A]' },
                         { label: 'สิทธิบัตรทอง (30 บาทรักษาทุกโรค)', count: db_coverageGoldCard, color: 'bg-amber-500' },
                         { label: 'สิทธิประกันสังคม', count: db_coverageSocialSecurity, color: 'bg-blue-600' },
                         { label: 'สิทธิประกันสุขภาพเอกชน/จ่ายเอง', count: db_coveragePrivate, color: 'bg-indigo-600' }
@@ -2022,7 +2040,7 @@ export default function StaffPortal({
                           <div key={idx} className="space-y-1">
                             <div className="flex justify-between items-center text-[10px] font-bold text-gray-600">
                               <span>{cov.label}</span>
-                              <span className="font-mono text-[#4A6741]">{cov.count} คน ({pct.toFixed(0)}%)</span>
+                              <span className="font-mono text-[#1E3A8A]">{cov.count} คน ({pct.toFixed(0)}%)</span>
                             </div>
                             <div className="w-full bg-gray-100 h-2.5 rounded-lg overflow-hidden">
                               <div style={{ width: `${pct}%` }} className={`h-full ${cov.color} rounded-lg`}></div>
@@ -2037,9 +2055,9 @@ export default function StaffPortal({
                   <div className="space-y-2.5 pt-4 border-t border-gray-100">
                     <span className="text-[11px] font-bold text-gray-500 block">รูปแบบการเข้ารับบริการ (Walk-In / หน่วยงาน)</span>
                     <div className="grid grid-cols-2 gap-2.5 text-xs">
-                      <div className="bg-emerald-50/50 p-3 rounded-xl border border-[#4A6741]/10 text-center space-y-0.5">
+                      <div className="bg-emerald-50/50 p-3 rounded-xl border border-[#1E3A8A]/10 text-center space-y-0.5">
                         <span className="text-gray-500 text-[10px] font-bold block">Walk-In ทั่วไป</span>
-                        <p className="text-lg font-black text-[#4A6741] font-mono">
+                        <p className="text-lg font-black text-[#1E3A8A] font-mono">
                           {db_walkInCount} <span className="text-xs font-semibold text-gray-400">ราย</span>
                         </p>
                       </div>
@@ -2054,10 +2072,10 @@ export default function StaffPortal({
                 </div>
 
                 {/* 2. Asia-Pacific BMI Perspective Distribution (4 Columns) */}
-                <div className="lg:col-span-4 bg-white rounded-2xl border border-[#E0E4D9] shadow-xs p-6 space-y-4">
-                  <div className="border-b border-[#E0E4D9] pb-3">
-                    <h4 className="font-extrabold text-[#4A6741] text-sm flex items-center space-x-1.5">
-                      <Scale className="h-4.5 w-4.5 text-[#4A6741]" />
+                <div className="lg:col-span-4 bg-white rounded-2xl border border-[#CBD5E1] shadow-xs p-6 space-y-4">
+                  <div className="border-b border-[#CBD5E1] pb-3">
+                    <h4 className="font-extrabold text-[#1E3A8A] text-sm flex items-center space-x-1.5">
+                      <Scale className="h-4.5 w-4.5 text-[#1E3A8A]" />
                       <span>เกณฑ์ดัชนีมวลกายประชากรเอเชีย (The Asia-Pacific BMI)</span>
                     </h4>
                   </div>
@@ -2084,7 +2102,7 @@ export default function StaffPortal({
                               <span className="text-[9px] text-gray-400 block font-semibold">เกณฑ์เอเชีย: {bmi.range} ({bmi.desc})</span>
                             </div>
                             <div className="text-right">
-                              <span className="text-xs font-black text-[#4A6741] font-mono block">{bmi.count} คน</span>
+                              <span className="text-xs font-black text-[#1E3A8A] font-mono block">{bmi.count} คน</span>
                               <span className="text-[9px] font-bold text-gray-400 block font-mono">({pct.toFixed(0)}%)</span>
                             </div>
                           </div>
@@ -2098,23 +2116,23 @@ export default function StaffPortal({
                 </div>
 
                 {/* 3. Physical Examination Averages & Waistline (4 Columns) */}
-                <div className="lg:col-span-4 bg-white rounded-2xl border border-[#E0E4D9] shadow-xs p-6 space-y-4">
-                  <div className="border-b border-[#E0E4D9] pb-3">
-                    <h4 className="font-extrabold text-[#4A6741] text-sm flex items-center space-x-1.5">
-                      <Heart className="h-4.5 w-4.5 text-[#4A6741]" />
+                <div className="lg:col-span-4 bg-white rounded-2xl border border-[#CBD5E1] shadow-xs p-6 space-y-4">
+                  <div className="border-b border-[#CBD5E1] pb-3">
+                    <h4 className="font-extrabold text-[#1E3A8A] text-sm flex items-center space-x-1.5">
+                      <Heart className="h-4.5 w-4.5 text-[#1E3A8A]" />
                       <span>ค่าเฉลี่ยผลตรวจคัดกรองร่างกาย (Physical Averages)</span>
                     </h4>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 text-xs">
-                    <div className="bg-[#4A6741]/5 p-3 rounded-xl border border-[#4A6741]/10 text-center space-y-1">
+                    <div className="bg-[#1E3A8A]/5 p-3 rounded-xl border border-[#1E3A8A]/10 text-center space-y-1">
                       <span className="text-gray-400 text-[10px] font-bold uppercase tracking-wider block">น้ำหนักเฉลี่ย</span>
-                      <p className="text-xl font-black text-[#4A6741] font-mono">{db_avgWeight > 0 ? db_avgWeight.toFixed(1) : '-'} <span className="text-[10px] font-bold text-gray-500">กิโลกรัม</span></p>
+                      <p className="text-xl font-black text-[#1E3A8A] font-mono">{db_avgWeight > 0 ? db_avgWeight.toFixed(1) : '-'} <span className="text-[10px] font-bold text-gray-500">กิโลกรัม</span></p>
                     </div>
 
-                    <div className="bg-[#4A6741]/5 p-3 rounded-xl border border-[#4A6741]/10 text-center space-y-1">
+                    <div className="bg-[#1E3A8A]/5 p-3 rounded-xl border border-[#1E3A8A]/10 text-center space-y-1">
                       <span className="text-gray-400 text-[10px] font-bold uppercase tracking-wider block">ส่วนสูงเฉลี่ย</span>
-                      <p className="text-xl font-black text-[#4A6741] font-mono">{db_avgHeight > 0 ? db_avgHeight.toFixed(0) : '-'} <span className="text-[10px] font-bold text-gray-500">เซนติเมตร</span></p>
+                      <p className="text-xl font-black text-[#1E3A8A] font-mono">{db_avgHeight > 0 ? db_avgHeight.toFixed(0) : '-'} <span className="text-[10px] font-bold text-gray-500">เซนติเมตร</span></p>
                     </div>
 
                     <div className="bg-red-500/5 p-3 rounded-xl border border-red-500/10 text-center space-y-1 col-span-2">
@@ -2144,9 +2162,9 @@ export default function StaffPortal({
                       </p>
                     </div>
 
-                    <div className="bg-[#4A6741]/5 p-3 rounded-xl border border-[#4A6741]/10 text-center space-y-1">
+                    <div className="bg-[#1E3A8A]/5 p-3 rounded-xl border border-[#1E3A8A]/10 text-center space-y-1">
                       <span className="text-gray-400 text-[10px] font-bold uppercase tracking-wider block">อัตราเต้นหัวใจเฉลี่ย</span>
-                      <p className="text-xl font-black text-[#4A6741] font-mono">{db_avgHeartRate > 0 ? db_avgHeartRate.toFixed(0) : '-'} <span className="text-[10px] font-bold text-gray-500">ครั้ง/นาที</span></p>
+                      <p className="text-xl font-black text-[#1E3A8A] font-mono">{db_avgHeartRate > 0 ? db_avgHeartRate.toFixed(0) : '-'} <span className="text-[10px] font-bold text-gray-500">ครั้ง/นาที</span></p>
                     </div>
 
                     <div className="bg-amber-500/5 p-3 rounded-xl border border-amber-500/10 text-center space-y-1">
@@ -2157,7 +2175,7 @@ export default function StaffPortal({
 
                   {/* Physical Waistline Standard Exceedance Card */}
                   <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-3.5 space-y-2.5 text-xs text-amber-900">
-                    <p className="font-extrabold text-[#4A6741] flex items-center gap-1 text-[11px]">
+                    <p className="font-extrabold text-[#1E3A8A] flex items-center gap-1 text-[11px]">
                       <span>⚠️ สถิติรอบเอวเกินมาตรฐาน (โรคอ้วนลงพุง)</span>
                     </p>
                     <div className="grid grid-cols-2 gap-2 text-[10px]">
@@ -2188,10 +2206,10 @@ export default function StaffPortal({
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
                 {/* 4. Laboratory Abnormalities Grid List (6 Columns) */}
-                <div className="lg:col-span-6 bg-white rounded-2xl border border-[#E0E4D9] shadow-xs p-6 space-y-4">
-                  <div className="border-b border-[#E0E4D9] pb-3 flex justify-between items-center">
-                    <h4 className="font-extrabold text-[#4A6741] text-sm flex items-center space-x-1.5">
-                      <ClipboardList className="h-4.5 w-4.5 text-[#4A6741]" />
+                <div className="lg:col-span-6 bg-white rounded-2xl border border-[#CBD5E1] shadow-xs p-6 space-y-4">
+                  <div className="border-b border-[#CBD5E1] pb-3 flex justify-between items-center">
+                    <h4 className="font-extrabold text-[#1E3A8A] text-sm flex items-center space-x-1.5">
+                      <ClipboardList className="h-4.5 w-4.5 text-[#1E3A8A]" />
                       <span>สถานะห้องปฏิบัติการแลป & อัตราความผิดปกติ (Lab Findings)</span>
                     </h4>
                   </div>
@@ -2229,10 +2247,10 @@ export default function StaffPortal({
                 </div>
 
                 {/* 5. Lifestyle Medicine (LM6) Health Risk Habits Profile (6 Columns) */}
-                <div className="lg:col-span-6 bg-white rounded-2xl border border-[#E0E4D9] shadow-xs p-6 space-y-4">
-                  <div className="border-b border-[#E0E4D9] pb-3">
-                    <h4 className="font-extrabold text-[#4A6741] text-sm flex items-center space-x-1.5">
-                      <TrendingUp className="h-4.5 w-4.5 text-[#4A6741]" />
+                <div className="lg:col-span-6 bg-white rounded-2xl border border-[#CBD5E1] shadow-xs p-6 space-y-4">
+                  <div className="border-b border-[#CBD5E1] pb-3">
+                    <h4 className="font-extrabold text-[#1E3A8A] text-sm flex items-center space-x-1.5">
+                      <TrendingUp className="h-4.5 w-4.5 text-[#1E3A8A]" />
                       <span>ดัชนีคะแนนเวชศาสตร์วิถีชีวิต 6 มิติ (Lifestyle Medicine Score)</span>
                     </h4>
                   </div>
@@ -2256,7 +2274,7 @@ export default function StaffPortal({
                         <div key={idx} className="space-y-1 text-xs">
                           <div className="flex justify-between items-center font-bold text-gray-700">
                             <span className="text-[11px] font-black">{dim.label}</span>
-                            <span className="font-mono text-[#4A6741] text-xs bg-[#4A6741]/5 px-2 py-0.5 rounded-lg border border-[#4A6741]/10">
+                            <span className="font-mono text-[#1E3A8A] text-xs bg-[#1E3A8A]/5 px-2 py-0.5 rounded-lg border border-[#1E3A8A]/10">
                               {displayScore > 0 ? displayScore.toFixed(1) : 'ยังไม่ประเมิน'}/10
                             </span>
                           </div>
@@ -2277,15 +2295,15 @@ export default function StaffPortal({
               </div>
 
               {/* Dashboard Tips Footer Banner */}
-              <div className="bg-gradient-to-r from-[#4A6741] to-[#3a5033] text-white p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="bg-gradient-to-r from-blue-950 via-blue-900 to-sky-900 text-white p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 border-l-4 border-sky-400 shadow-sm">
                 <div className="text-left space-y-0.5">
-                  <p className="font-bold text-sm">💡 ทราบหรือไม่? การปรับพฤติกรรมตามหลักเวชศาสตร์วิถีชีวิต (Lifestyle Medicine)</p>
-                  <p className="text-xs text-green-100/90">สามารถชะลอการเกิดโรคเรื้อรัง (NCDs) เช่น โรคเบาหวาน โรคความดันโลหิตสูง และไขมันในเลือดสูงได้ดีกว่ายาเคมีบำบัดถึง 80%</p>
+                  <p className="font-bold text-sm text-sky-200">💡 ทราบหรือไม่? การปรับพฤติกรรมตามหลักเวชศาสตร์วิถีชีวิต (Lifestyle Medicine)</p>
+                  <p className="text-xs text-sky-100/80">สามารถชะลอการเกิดโรคเรื้อรัง (NCDs) เช่น โรคเบาหวาน โรคความดันโลหิตสูง และไขมันในเลือดสูงได้ดีกว่ายาเคมีบำบัดถึง 80%</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setStaffActiveTab('appointments')}
-                  className="bg-white text-[#4A6741] hover:bg-green-50 font-extrabold text-xs py-2.5 px-4 rounded-xl shadow-sm transition-colors cursor-pointer shrink-0"
+                  className="bg-white text-blue-900 hover:bg-sky-50 font-extrabold text-xs py-2.5 px-4 rounded-xl shadow-sm transition-colors cursor-pointer shrink-0"
                 >
                   ไปที่หน้าบันทึกผลแลปประจำวัน ➔
                 </button>
@@ -2295,43 +2313,43 @@ export default function StaffPortal({
 
           {/* Appointments database management */}
           {staffActiveTab === 'appointments' && (
-            <div className="bg-white rounded-2xl border border-[#E0E4D9] shadow-sm p-6 space-y-4">
-            <div className="flex flex-col gap-4 border-b border-[#E0E4D9] pb-4">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+            <div className="flex flex-col gap-4 border-b border-slate-200 pb-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <h4 className="font-extrabold text-[#4A6741] text-base flex items-center space-x-1.5">
-                  <Calendar className="h-5 w-5 text-[#4A6741]" />
+                <h4 className="font-extrabold text-blue-950 text-base flex items-center space-x-1.5">
+                  <Calendar className="h-5 w-5 text-blue-600" />
                   <span>รายการนัดหมายตรวจสุขภาพและการบันทึกผลแลป</span>
                 </h4>
-                <span className="text-[11px] text-amber-700 bg-amber-50 px-3 py-1 rounded-lg border border-amber-100 font-medium">
+                <span className="text-[11px] text-amber-700 bg-amber-50 px-3 py-1 rounded-lg border border-amber-200 font-medium">
                   💡 คำแนะนำ: <strong>คลิกขวา</strong> บนแถวคิวใดก็ได้ เพื่อยืนยันหรือยกเลิกรายการตรวจและคำนวณราคาใหม่
                 </span>
               </div>
 
               {/* Enhanced Search Input for Daily Records and Confirmed Date */}
-              <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-amber-500/5 p-4 rounded-xl border border-amber-500/20 shadow-3xs">
+              <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-gradient-to-r from-sky-50/70 to-blue-50/70 p-4 rounded-2xl border border-sky-200 shadow-3xs">
                 <div className="text-xs space-y-1">
-                  <span className="text-amber-800 text-sm font-extrabold flex items-center gap-1.5">
-                    <Search className="h-4.5 w-4.5 text-amber-600" />
+                  <span className="text-blue-950 text-sm font-extrabold flex items-center gap-1.5">
+                    <Search className="h-4.5 w-4.5 text-blue-600" />
                     <span>ค้นหาข้อมูลคิวนัดหมายตรวจสุขภาพ</span>
                   </span>
-                  <p className="text-[11px] text-gray-500 font-medium leading-relaxed">
+                  <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
                     ค้นหาและกรองข้อมูลผู้รับบริการด้วย <strong>วันที่ยืนยันเข้ารับการตรวจ (เช่น 09/07/2569)</strong>, วันนัดคิว หรือชื่อคนไข้ เพื่อให้เจ้าหน้าที่และแพทย์บันทึกผลแลปรายวันได้สะดวกรวดเร็ว
                   </p>
                 </div>
                 <div className="relative w-full md:w-96 text-xs">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-emerald-600" />
+                  <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-sky-600" />
                   <input
                     type="text"
                     placeholder="พิมพ์วันที่ยืนยัน (09/07/2569), วันนัดคิว หรือชื่อคนไข้..."
                     value={appointmentSearchQuery}
                     onChange={(e) => setAppointmentSearchQuery(e.target.value)}
-                    className="pl-9 pr-12 py-2.5 border-2 border-emerald-600/30 rounded-xl w-full font-bold focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 bg-white shadow-3xs"
+                    className="pl-10 pr-12 py-2.5 border-2 border-sky-400/50 rounded-xl w-full font-bold focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 bg-white shadow-3xs"
                   />
                   {appointmentSearchQuery && (
                     <button
                       type="button"
                       onClick={() => setAppointmentSearchQuery('')}
-                      className="absolute right-3 top-2.5 bg-gray-150 hover:bg-gray-250 text-gray-600 text-[10px] px-1.5 py-0.5 rounded-md font-bold transition-all cursor-pointer"
+                      className="absolute right-3 top-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] px-1.5 py-0.5 rounded-md font-bold transition-all cursor-pointer"
                     >
                       ล้าง
                     </button>
@@ -2340,18 +2358,18 @@ export default function StaffPortal({
               </div>
             </div>
 
-            <div className="overflow-x-auto border border-[#E0E4D9] rounded-xl">
-              <table className="min-w-full divide-y divide-gray-200 text-xs text-left">
-                <thead className="bg-[#F2F4ED] font-bold text-[#2D3E2F]">
+            <div className="overflow-x-auto border border-blue-200/80 rounded-2xl shadow-3xs overflow-hidden">
+              <table className="min-w-full divide-y divide-blue-100 text-xs text-left">
+                <thead className="bg-gradient-to-r from-blue-950 via-blue-900 to-sky-900 text-white font-bold">
                   <tr>
-                    <th scope="col" className="px-4 py-3">วันนัดคิว</th>
-                    <th scope="col" className="px-4 py-3">ช่วงเวลา</th>
-                    <th scope="col" className="px-4 py-3">ชื่อคนไข้</th>
-                    <th scope="col" className="px-4 py-3">รายละเอียดโปรแกรมการตรวจ</th>
-                    <th scope="col" className="px-4 py-3 text-center">ราคา</th>
-                    <th scope="col" className="px-4 py-3 text-center">สถานะ</th>
-                    <th scope="col" className="px-4 py-3 text-center">การจัดการ</th>
-                    <th scope="col" className="px-4 py-3 text-center bg-[#4A6741]/5 text-[#4A6741] whitespace-nowrap">วันที่ยืนยันเข้ารับการตรวจ</th>
+                    <th scope="col" className="px-4 py-3.5 text-sky-100 uppercase tracking-wider">วันนัดคิว</th>
+                    <th scope="col" className="px-4 py-3.5 text-sky-100 uppercase tracking-wider">ช่วงเวลา</th>
+                    <th scope="col" className="px-4 py-3.5 text-sky-100 uppercase tracking-wider">ชื่อคนไข้</th>
+                    <th scope="col" className="px-4 py-3.5 text-sky-100 uppercase tracking-wider">รายละเอียดโปรแกรมการตรวจ</th>
+                    <th scope="col" className="px-4 py-3.5 text-center text-sky-100 uppercase tracking-wider">ราคา</th>
+                    <th scope="col" className="px-4 py-3.5 text-center text-sky-100 uppercase tracking-wider">สถานะ</th>
+                    <th scope="col" className="px-4 py-3.5 text-center text-sky-100 uppercase tracking-wider">การจัดการ</th>
+                    <th scope="col" className="px-4 py-3.5 text-center bg-sky-500/20 text-sky-200 border-l border-white/10 uppercase tracking-wider whitespace-nowrap">วันที่ยืนยันเข้ารับการตรวจ</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
@@ -2369,7 +2387,14 @@ export default function StaffPortal({
                           title="คลิกขวาเพื่อยืนยัน/ยกเลิกรายการตรวจที่ผู้รับบริการเลือก และคำนวณราคาใหม่"
                         >
                           <td className="px-4 py-3 font-mono font-bold text-gray-700">{app.date}</td>
-                          <td className="px-4 py-3 font-mono text-gray-500">{app.time}</td>
+                          <td className="px-4 py-3 font-mono text-gray-700 whitespace-nowrap">
+                            <div className="font-semibold">{app.time} น.</div>
+                            {(app.time?.includes('13:') || app.time?.includes('14:') || app.time?.includes('13.') || app.time?.includes('14.')) && (
+                              <span className="text-[9px] bg-amber-100 text-amber-900 border border-amber-300 px-1.5 py-0.5 rounded font-bold inline-block mt-0.5">
+                                ไม่มีแพทย์ออกตรวจ
+                              </span>
+                            )}
+                          </td>
                           <td className="px-4 py-3 font-bold text-gray-800">{patient?.name || 'ไม่พบบัญชี'}</td>
                           <td className="px-4 py-3 text-gray-500">
                             <p className="font-semibold text-gray-700">{app.basicProgramName}</p>
@@ -2379,10 +2404,10 @@ export default function StaffPortal({
                               </p>
                             )}
                             {app.specialTests.length > 0 && (
-                              <p className="text-[10px] text-[#4A6741] font-semibold mt-0.5">ตรวจเพิ่มเติม: {app.specialTests.map(tId => SPECIAL_TESTS[tId]?.name || tId).join(', ')}</p>
+                              <p className="text-[10px] text-[#1E3A8A] font-semibold mt-0.5">ตรวจเพิ่มเติม: {app.specialTests.map(tId => SPECIAL_TESTS[tId]?.name || tId).join(', ')}</p>
                             )}
                           </td>
-                          <td className="px-4 py-3 text-center font-mono font-bold text-[#4A6741]">{app.totalCost} บ.</td>
+                          <td className="px-4 py-3 text-center font-mono font-bold text-[#1E3A8A]">{app.totalCost} บ.</td>
                           <td className="px-4 py-3 text-center">
                             <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                               app.status === 'completed'
@@ -2415,7 +2440,7 @@ export default function StaffPortal({
                                   </button>
                                   <button
                                     onClick={() => handleSelectAppointment(app)}
-                                    className="bg-[#4A6741] hover:bg-[#3d5635] text-white font-bold py-1 px-2 rounded text-[10px] shadow-sm transition-all cursor-pointer"
+                                    className="bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-bold py-1 px-2 rounded text-[10px] shadow-sm transition-all cursor-pointer"
                                   >
                                     {app.status === 'pending_results' ? 'กรอกผลตรวจต่อ' : 'บันทึกผลตรวจ'}
                                   </button>
@@ -2446,7 +2471,7 @@ export default function StaffPortal({
                               )}
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-center font-mono font-bold text-gray-700 bg-[#4A6741]/5">
+                          <td className="px-4 py-3 text-center font-mono font-bold text-gray-700 bg-[#1E3A8A]/5">
                             {app.confirmedServiceDate ? (
                               <span className="inline-block bg-emerald-100 text-emerald-850 border border-emerald-300 px-2.5 py-1 rounded-lg text-[10px] font-black shadow-3xs animate-fade-in">
                                 {app.confirmedServiceDate}
@@ -2483,13 +2508,13 @@ export default function StaffPortal({
       {/* Patient Profile Editing Modal */}
       {editingPatient && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-[#E0E4D9] w-full max-w-lg shadow-xl overflow-hidden animate-fade-in text-xs text-left">
-            <div className="bg-[#4A6741] text-white p-5 flex justify-between items-center">
+          <div className="bg-white rounded-2xl border border-[#CBD5E1] w-full max-w-lg shadow-xl overflow-hidden animate-fade-in text-xs text-left">
+            <div className="bg-[#1E3A8A] text-white p-5 flex justify-between items-center">
               <div className="flex items-center space-x-2">
-                <User className="h-5 w-5 text-green-100" />
+                <User className="h-5 w-5 text-sky-200" />
                 <div>
                   <h3 className="text-base font-bold text-white">แก้ไขข้อมูลผู้รับบริการ</h3>
-                  <p className="text-[10px] text-green-100/90">แก้ไขข้อมูลทั่วไปและ HN ป้องกันสะกดชื่อผิดหรือคำนำหน้าคลาดเคลื่อน</p>
+                  <p className="text-[10px] text-sky-200/90">แก้ไขข้อมูลทั่วไปและ HN ป้องกันสะกดชื่อผิดหรือคำนำหน้าคลาดเคลื่อน</p>
                 </div>
               </div>
               <button
@@ -2509,7 +2534,7 @@ export default function StaffPortal({
                     type="text"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    className="p-2.5 border border-gray-200 rounded-lg w-full text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-[#4A6741]"
+                    className="p-2.5 border border-gray-200 rounded-lg w-full text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-[#1E3A8A]"
                     required
                   />
                 </div>
@@ -2521,7 +2546,7 @@ export default function StaffPortal({
                     placeholder="เช่น HN12345"
                     value={editHn}
                     onChange={(e) => setEditHn(e.target.value)}
-                    className="p-2.5 border border-gray-200 rounded-lg w-full text-sm font-mono font-bold text-[#4A6741] focus:outline-none focus:ring-1 focus:ring-[#4A6741]"
+                    className="p-2.5 border border-gray-200 rounded-lg w-full text-sm font-mono font-bold text-[#1E3A8A] focus:outline-none focus:ring-1 focus:ring-[#1E3A8A]"
                   />
                 </div>
 
@@ -2533,7 +2558,7 @@ export default function StaffPortal({
                     type="date"
                     value={editBirthDate}
                     onChange={(e) => handleEditBirthDateChange(e.target.value)}
-                    className="p-2.5 border border-gray-200 rounded-lg w-full text-sm font-mono focus:outline-none focus:ring-1 focus:ring-[#4A6741]"
+                    className="p-2.5 border border-gray-200 rounded-lg w-full text-sm font-mono focus:outline-none focus:ring-1 focus:ring-[#1E3A8A]"
                   />
                 </div>
 
@@ -2552,7 +2577,7 @@ export default function StaffPortal({
                   <select
                     value={editGender}
                     onChange={(e) => setEditGender(e.target.value as any)}
-                    className="p-2.5 border border-gray-200 rounded-lg w-full text-sm bg-white focus:outline-none focus:ring-1 focus:ring-[#4A6741]"
+                    className="p-2.5 border border-gray-200 rounded-lg w-full text-sm bg-white focus:outline-none focus:ring-1 focus:ring-[#1E3A8A]"
                   >
                     <option value="male">ชาย (Male)</option>
                     <option value="female">หญิง (Female)</option>
@@ -2565,7 +2590,7 @@ export default function StaffPortal({
                     type="text"
                     value={editPhone}
                     onChange={(e) => setEditPhone(e.target.value)}
-                    className="p-2.5 border border-gray-200 rounded-lg w-full text-sm font-mono focus:outline-none focus:ring-1 focus:ring-[#4A6741]"
+                    className="p-2.5 border border-gray-200 rounded-lg w-full text-sm font-mono focus:outline-none focus:ring-1 focus:ring-[#1E3A8A]"
                     required
                   />
                 </div>
@@ -2576,14 +2601,14 @@ export default function StaffPortal({
                     type="text"
                     value={editPassword}
                     onChange={(e) => setEditPassword(e.target.value)}
-                    className="p-2.5 border border-gray-200 rounded-lg w-full text-sm font-mono font-bold text-[#4A6741] focus:outline-none focus:ring-1 focus:ring-[#4A6741]"
+                    className="p-2.5 border border-gray-200 rounded-lg w-full text-sm font-mono font-bold text-[#1E3A8A] focus:outline-none focus:ring-1 focus:ring-[#1E3A8A]"
                     required
                   />
                   <p className="text-[9px] text-gray-400">ต้องเป็นอักษร A-Z 4 ตัว และตัวเลข 4-6 ตัว เช่น UBUH1234</p>
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-2 pt-4 border-t border-[#E0E4D9]">
+              <div className="flex justify-end space-x-2 pt-4 border-t border-[#CBD5E1]">
                 <button
                   type="button"
                   onClick={() => setEditingPatient(null)}
@@ -2593,7 +2618,7 @@ export default function StaffPortal({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#4A6741] hover:bg-[#3d5635] text-white font-bold rounded-lg shadow-sm transition-colors cursor-pointer"
+                  className="px-5 py-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-bold rounded-lg shadow-sm transition-colors cursor-pointer"
                 >
                   บันทึกการแก้ไข
                 </button>
@@ -2606,14 +2631,14 @@ export default function StaffPortal({
       {/* Confirm & Edit Appointment Tests Modal */}
       {confirmingApp && confirmingPatient && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl border border-[#E0E4D9] w-full max-w-2xl shadow-2xl overflow-hidden animate-fade-in text-xs text-left">
-            <div className="bg-[#4A6741] text-white p-5 flex justify-between items-center relative">
+          <div className="bg-white rounded-3xl border border-[#CBD5E1] w-full max-w-2xl shadow-2xl overflow-hidden animate-fade-in text-xs text-left">
+            <div className="bg-[#1E3A8A] text-white p-5 flex justify-between items-center relative">
               <div className="absolute inset-0 bg-white opacity-5 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]"></div>
               <div className="flex items-center space-x-2 relative z-10">
-                <ClipboardList className="h-5 w-5 text-green-100" />
+                <ClipboardList className="h-5 w-5 text-sky-200" />
                 <div>
                   <h3 className="text-base font-bold text-white">ตรวจสอบและยืนยันรายการตรวจสุขภาพจริง</h3>
-                  <p className="text-[10px] text-green-100/90">
+                  <p className="text-[10px] text-sky-200/90">
                     ผู้รับบริการ: {confirmingPatient.name} • เพศ{confirmingPatient.gender === 'female' ? 'หญิง' : 'ชาย'} • อายุ {confirmingPatient.age} ปี
                   </p>
                 </div>
@@ -2643,7 +2668,7 @@ export default function StaffPortal({
 
               {/* Basic tests selection */}
               <div className="space-y-3">
-                <h4 className="font-bold text-[#4A6741] text-xs uppercase tracking-wider flex items-center gap-1.5 border-b pb-1.5 border-gray-150">
+                <h4 className="font-bold text-[#1E3A8A] text-xs uppercase tracking-wider flex items-center gap-1.5 border-b pb-1.5 border-gray-150">
                   <span>1. รายการตรวจพื้นฐานประจำโปรแกรม (Basic & Recommended Tests)</span>
                 </h4>
                 
@@ -2659,7 +2684,7 @@ export default function StaffPortal({
                         key={tId}
                         className={`flex items-start space-x-2.5 p-3 rounded-xl border transition-all cursor-pointer ${
                           isChecked 
-                            ? 'bg-[#F9FAF7] border-[#4A6741]/40 shadow-xs' 
+                            ? 'bg-[#F8FAFC] border-[#1E3A8A]/40 shadow-xs' 
                             : 'bg-white border-gray-150 hover:bg-gray-50/50 opacity-60'
                         }`}
                       >
@@ -2673,17 +2698,17 @@ export default function StaffPortal({
                               setConfBasicTests([...confBasicTests, tId]);
                             }
                           }}
-                          className="mt-0.5 rounded border-gray-300 text-[#4A6741] focus:ring-[#4A6741] cursor-pointer"
+                          className="mt-0.5 rounded border-gray-300 text-[#1E3A8A] focus:ring-[#1E3A8A] cursor-pointer"
                         />
                         <div className="flex-1">
                           <div className="flex justify-between items-baseline font-bold text-gray-800">
                             <span className="flex items-center gap-1 flex-wrap">
                               {test.name}
                               {isRecommendedByDefault && (
-                                <span className="bg-[#4A6741]/10 text-[#4A6741] text-[8px] font-bold px-1.5 py-0.2 rounded-full">แนะนำ</span>
+                                <span className="bg-[#1E3A8A]/10 text-[#1E3A8A] text-[8px] font-bold px-1.5 py-0.2 rounded-full">แนะนำ</span>
                               )}
                             </span>
-                            <span className="font-mono text-[#4A6741]">{test.price} บ.</span>
+                            <span className="font-mono text-[#1E3A8A]">{test.price} บ.</span>
                           </div>
                           <p className="text-[10px] text-gray-400 mt-0.5 leading-relaxed">{test.detail}</p>
                         </div>
@@ -2695,7 +2720,7 @@ export default function StaffPortal({
 
               {/* Special tests selection */}
               <div className="space-y-3">
-                <h4 className="font-bold text-[#4A6741] text-xs uppercase tracking-wider flex items-center gap-1.5 border-b pb-1.5 border-gray-150">
+                <h4 className="font-bold text-[#1E3A8A] text-xs uppercase tracking-wider flex items-center gap-1.5 border-b pb-1.5 border-gray-150">
                   <span>2. รายการตรวจพิเศษเสริมเพิ่มเติม (Special Additional Tests)</span>
                 </h4>
 
@@ -2709,7 +2734,7 @@ export default function StaffPortal({
                           key={test.id}
                           className={`flex items-start space-x-2.5 p-3 rounded-xl border transition-all cursor-pointer ${
                             isChecked 
-                              ? 'bg-[#F9FAF7] border-[#4A6741]/40 shadow-xs' 
+                              ? 'bg-[#F8FAFC] border-[#1E3A8A]/40 shadow-xs' 
                               : 'bg-white border-gray-150 hover:bg-gray-50/50 opacity-60'
                           }`}
                         >
@@ -2723,12 +2748,12 @@ export default function StaffPortal({
                                 setConfSpecialTests([...confSpecialTests, test.id]);
                               }
                             }}
-                            className="mt-0.5 rounded border-gray-300 text-[#4A6741] focus:ring-[#4A6741] cursor-pointer"
+                            className="mt-0.5 rounded border-gray-300 text-[#1E3A8A] focus:ring-[#1E3A8A] cursor-pointer"
                           />
                           <div className="flex-1">
                             <div className="flex justify-between items-baseline font-bold text-gray-800">
                               <span>{test.name}</span>
-                              <span className="font-mono text-[#4A6741]">+{test.price} บ.</span>
+                              <span className="font-mono text-[#1E3A8A]">+{test.price} บ.</span>
                             </div>
                             <p className="text-[10px] text-gray-400 mt-0.5 leading-relaxed">{test.detail}</p>
                           </div>
@@ -2739,21 +2764,21 @@ export default function StaffPortal({
               </div>
 
               {/* Dynamic live cost recalculation panel */}
-              <div className="border-t border-gray-100 pt-5 flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#F9FAF7] p-4 rounded-2xl border border-dashed border-[#E0E4D9]">
+              <div className="border-t border-gray-100 pt-5 flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#F8FAFC] p-4 rounded-2xl border border-dashed border-[#CBD5E1]">
                 <div className="text-left space-y-0.5">
-                  <p className="text-[10px] text-[#4A6741] font-bold uppercase tracking-wider">คำนวณค่าบริการแบบเรียลไทม์ (Live Pricing Recalculator):</p>
+                  <p className="text-[10px] text-[#1E3A8A] font-bold uppercase tracking-wider">คำนวณค่าบริการแบบเรียลไทม์ (Live Pricing Recalculator):</p>
                   <p className="text-[10px] text-gray-400 leading-normal">
                     (ตรวจพื้นฐานที่เลือก: {basicCostInModal} บ. + ตรวจพิเศษที่เลือก: {specialCostInModal} บ.)
                   </p>
                 </div>
                 <div className="text-right flex items-baseline gap-2">
                   <span className="text-xs font-bold text-gray-500">ราคาสุทธิใหม่:</span>
-                  <span className="text-2xl font-black text-[#4A6741] font-mono">{liveTotalCostInModal.toLocaleString()} บาท</span>
+                  <span className="text-2xl font-black text-[#1E3A8A] font-mono">{liveTotalCostInModal.toLocaleString()} บาท</span>
                 </div>
               </div>
 
               {/* Buttons */}
-              <div className="flex justify-end space-x-2 pt-4 border-t border-[#E0E4D9]">
+              <div className="flex justify-end space-x-2 pt-4 border-t border-[#CBD5E1]">
                 <button
                   type="button"
                   onClick={() => setConfirmingApp(null)}
@@ -2763,7 +2788,7 @@ export default function StaffPortal({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#4A6741] hover:bg-[#3d5635] text-white font-bold rounded-lg shadow-sm transition-colors cursor-pointer flex items-center space-x-1"
+                  className="px-5 py-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-bold rounded-lg shadow-sm transition-colors cursor-pointer flex items-center space-x-1"
                 >
                   <Check className="h-4 w-4" />
                   <span>บันทึกและคำนวณราคาใหม่</span>

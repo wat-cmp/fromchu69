@@ -128,11 +128,11 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
   return (
     <div className="space-y-6">
       {/* Control Actions - NOT Printed */}
-      <div className="flex flex-wrap justify-between items-center gap-4 bg-[#F2F4ED] p-4 rounded-2xl border border-[#E0E4D9] no-print">
+      <div className="flex flex-wrap justify-between items-center gap-4 bg-[#F0F7FF] p-4 rounded-2xl border border-[#CBD5E1] no-print">
         {onBack && (
           <button
             onClick={onBack}
-            className="inline-flex items-center space-x-2 text-sm font-semibold text-slate-600 hover:text-[#4A6741] transition-colors"
+            className="inline-flex items-center space-x-2 text-sm font-semibold text-slate-600 hover:text-[#1E3A8A] transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>ย้อนกลับ</span>
@@ -141,7 +141,7 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
         <div className="flex items-center space-x-3 ml-auto">
           <button
             onClick={handlePrint}
-            className="inline-flex items-center space-x-2 bg-[#4A6741] hover:bg-[#3d5635] text-white font-bold py-2 px-5 rounded-xl shadow-sm hover:shadow transition-all text-sm cursor-pointer"
+            className="inline-flex items-center space-x-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-bold py-2 px-5 rounded-xl shadow-sm hover:shadow transition-all text-sm cursor-pointer"
           >
             <Printer className="h-4 w-4" />
             <span>พิมพ์รายงาน / ดาวน์โหลด PDF</span>
@@ -153,7 +153,7 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
       <div
         ref={printAreaRef}
         id="official-print-report"
-        className="bg-white border-2 border-[#E0E4D9] shadow-md rounded-3xl p-6 sm:p-12 text-left space-y-8 font-sans print-card relative"
+        className="bg-white border-2 border-[#CBD5E1] shadow-md rounded-3xl p-6 sm:p-12 text-left space-y-8 font-sans print-card relative"
       >
         {/* Decorative Stamp for Official Document Look */}
         <div className="absolute top-12 right-12 border-4 border-red-400/40 text-red-400/40 font-extrabold uppercase tracking-widest text-[11px] sm:text-xs py-1 px-3 sm:py-1.5 sm:px-4 rounded-xl rotate-12 pointer-events-none select-none">
@@ -162,20 +162,20 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
         </div>
 
         {/* Report Header */}
-        <div className="border-b-2 border-[#4A6741] pb-6 flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
+        <div className="border-b-2 border-[#1E3A8A] pb-6 flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
           <div className="flex items-center space-x-4">
             {/* Hospital Logo simulation */}
-            <div className="bg-[#4A6741] text-white p-3 rounded-2xl shadow-inner shrink-0">
+            <div className="bg-[#1E3A8A] text-white p-3 rounded-2xl shadow-inner shrink-0">
               <svg className="h-8 w-8 text-amber-300 fill-current" viewBox="0 0 24 24">
                 <path d="M19 10.5V20c0 .6-.4 1-1 1h-5v-5h-2v5H6c-.6 0-1-.4-1-1v-9.5l7-4.8 7 4.8zM12 2L2 9h3v11c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V9h3L12 2z" />
                 <path d="M10.5 11h3v3h-3z" />
               </svg>
             </div>
             <div className="space-y-1 text-center sm:text-left">
-              <span className="text-[10px] font-bold tracking-widest text-[#4A6741] uppercase font-mono block">
+              <span className="text-[10px] font-bold tracking-widest text-[#1E3A8A] uppercase font-mono block">
                 Ubon Ratchathani University Hospital
               </span>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-[#4A6741] tracking-tight leading-tight">
+              <h2 className="text-xl sm:text-2xl font-extrabold text-[#1E3A8A] tracking-tight leading-tight">
                 ศูนย์ตรวจสุขภาพ โรงพยาบาลมหาวิทยาลัยอุบลราชธานี
               </h2>
               <p className="text-xs text-gray-500 font-semibold font-mono">
@@ -184,7 +184,7 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
             </div>
           </div>
           <div className="text-center sm:text-right shrink-0">
-            <span className="bg-[#4A6741] text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full block mb-2 font-mono">
+            <span className="bg-[#1E3A8A] text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full block mb-2 font-mono">
               HEALTH CHECKUP REPORT
             </span>
             <p className="text-xs text-gray-400">เลขที่เอกสารอ้างอิง</p>
@@ -193,14 +193,14 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
         </div>
 
         {/* Patient Demographic Info */}
-        <div className="bg-[#F2F4ED] p-6 rounded-2xl border border-[#E0E4D9] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-6 text-sm">
+        <div className="bg-[#F0F7FF] p-6 rounded-2xl border border-[#CBD5E1] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-6 text-sm">
           <div className="space-y-0.5">
             <span className="text-xs text-gray-400 font-medium">ชื่อ-นามสกุล ผู้รับบริการ</span>
             <p className="font-bold text-gray-800">{patient.name}</p>
           </div>
           <div className="space-y-0.5">
             <span className="text-xs text-gray-400 font-medium">หมายเลขคนไข้ (HN)</span>
-            <p className="font-bold text-[#4A6741] font-mono">{patient.hn || <span className="text-gray-400 font-normal">ยังไม่ได้ระบุ</span>}</p>
+            <p className="font-bold text-[#1E3A8A] font-mono">{patient.hn || <span className="text-gray-400 font-normal">ยังไม่ได้ระบุ</span>}</p>
           </div>
           <div className="space-y-0.5">
             <span className="text-xs text-gray-400 font-medium">วันเดือนปีเกิด (Date of Birth)</span>
@@ -224,7 +224,7 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
           </div>
           <div className="space-y-0.5">
             <span className="text-xs text-gray-400 font-medium">แพทย์ผู้ตรวจและลงนาม (Physician)</span>
-            <p className="font-bold text-[#4A6741]">
+            <p className="font-bold text-[#1E3A8A]">
               {result.doctorName} {result.doctorLicense ? `(${result.doctorLicense})` : ''}
             </p>
           </div>
@@ -232,41 +232,41 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
 
         {/* Body Composition & Physical Exam results */}
         <div className="space-y-4">
-          <h3 className="text-sm font-bold text-[#4A6741] uppercase tracking-widest border-l-4 border-[#4A6741] pl-3">
+          <h3 className="text-sm font-bold text-[#1E3A8A] uppercase tracking-widest border-l-4 border-[#1E3A8A] pl-3">
             1. สัญญาณชีพและผลการตรวจร่างกายทั่วไป (Vital Signs & Physical Examination)
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-4 text-xs">
-            <div className="bg-white p-3.5 rounded-xl border border-[#E0E4D9] text-center">
+            <div className="bg-white p-3.5 rounded-xl border border-[#CBD5E1] text-center">
               <span className="text-gray-400 font-medium block">น้ำหนัก</span>
               <span className="text-base font-extrabold text-gray-800 font-mono mt-1 block">{result.physical.weight}</span>
               <span className="text-gray-400 font-medium text-[10px] mt-0.5 block">กิโลกรัม (kg)</span>
             </div>
-            <div className="bg-white p-3.5 rounded-xl border border-[#E0E4D9] text-center">
+            <div className="bg-white p-3.5 rounded-xl border border-[#CBD5E1] text-center">
               <span className="text-gray-400 font-medium block">ส่วนสูง</span>
               <span className="text-base font-extrabold text-gray-800 font-mono mt-1 block">{result.physical.height}</span>
               <span className="text-gray-400 font-medium text-[10px] mt-0.5 block">เซนติเมตร (cm)</span>
             </div>
-            <div className="bg-white p-3.5 rounded-xl border border-[#E0E4D9] text-center">
+            <div className="bg-white p-3.5 rounded-xl border border-[#CBD5E1] text-center">
               <span className="text-gray-400 font-medium block">ดัชนีมวลกาย (BMI)</span>
               <span className="text-base font-extrabold text-gray-800 font-mono mt-1 block">{result.physical.bmi}</span>
-              <span className="text-[10px] font-bold text-[#4A6741] mt-0.5 block">{result.physical.bmiStatus}</span>
+              <span className="text-[10px] font-bold text-[#1E3A8A] mt-0.5 block">{result.physical.bmiStatus}</span>
             </div>
-            <div className="bg-white p-3.5 rounded-xl border border-[#E0E4D9] text-center">
+            <div className="bg-white p-3.5 rounded-xl border border-[#CBD5E1] text-center">
               <span className="text-gray-400 font-medium block">รอบเอว</span>
               <span className="text-base font-extrabold text-gray-800 font-mono mt-1 block">{result.physical.waistline || '-'}</span>
               <span className="text-gray-400 font-medium text-[10px] mt-0.5 block">เซนติเมตร (cm)</span>
             </div>
-            <div className="bg-white p-3.5 rounded-xl border border-[#E0E4D9] text-center">
+            <div className="bg-white p-3.5 rounded-xl border border-[#CBD5E1] text-center">
               <span className="text-gray-400 font-medium block">ความดันโลหิต</span>
               <span className="text-base font-extrabold text-gray-800 font-mono mt-1 block">{result.physical.bloodPressure}</span>
               <span className="text-gray-400 font-medium text-[10px] mt-0.5 block">มม.ปรอท (mmHg)</span>
             </div>
-            <div className="bg-white p-3.5 rounded-xl border border-[#E0E4D9] text-center">
+            <div className="bg-white p-3.5 rounded-xl border border-[#CBD5E1] text-center">
               <span className="text-gray-400 font-medium block">อัตราการเต้นหัวใจ</span>
               <span className="text-base font-extrabold text-gray-800 font-mono mt-1 block">{result.physical.heartRate}</span>
               <span className="text-gray-400 font-medium text-[10px] mt-0.5 block">ครั้ง/นาที (bpm)</span>
             </div>
-            <div className="bg-white p-3.5 rounded-xl border border-[#E0E4D9] text-center flex flex-col justify-between">
+            <div className="bg-white p-3.5 rounded-xl border border-[#CBD5E1] text-center flex flex-col justify-between">
               <span className="text-gray-400 font-medium block">ประเมินรวม</span>
               <span className={`inline-flex self-center px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${getStatusColor(result.physical.generalStatus)} mt-1`}>
                 {result.physical.generalStatus}
@@ -275,7 +275,7 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
             </div>
           </div>
           {result.physical.notes && (
-            <div className="bg-[#F9FAF7] border border-[#E0E4D9] p-4 rounded-xl text-xs text-gray-600">
+            <div className="bg-[#F8FAFC] border border-[#CBD5E1] p-4 rounded-xl text-xs text-gray-600">
               <span className="font-bold text-gray-700 block mb-1">บันทึกเพิ่มเติมทางการแพทย์:</span>
               <p>{result.physical.notes}</p>
             </div>
@@ -284,10 +284,10 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
 
         {/* Chest X-ray outcomes */}
         <div className="space-y-3">
-          <h3 className="text-sm font-bold text-[#4A6741] uppercase tracking-widest border-l-4 border-[#4A6741] pl-3">
+          <h3 className="text-sm font-bold text-[#1E3A8A] uppercase tracking-widest border-l-4 border-[#1E3A8A] pl-3">
             2. ผลตรวจเอกซเรย์ทรวงอก (Chest X-Ray)
           </h3>
-          <div className="bg-white border border-[#E0E4D9] rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="bg-white border border-[#CBD5E1] rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
               <p className="text-xs text-gray-400 font-medium">ผลการวินิจฉัยรังสีแพทย์</p>
               <p className="text-sm font-bold text-gray-800">{result.chestXray.description}</p>
@@ -302,23 +302,23 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
 
         {/* Lab Parameters table */}
         <div className="space-y-4">
-          <h3 className="text-sm font-bold text-[#4A6741] uppercase tracking-widest border-l-4 border-[#4A6741] pl-3">
+          <h3 className="text-sm font-bold text-[#1E3A8A] uppercase tracking-widest border-l-4 border-[#1E3A8A] pl-3">
             3. สรุปผลการตรวจทางห้องปฏิบัติการ (Laboratory Investigation Results)
           </h3>
-          <div className="overflow-hidden border border-[#E0E4D9] rounded-2xl shadow-sm">
+          <div className="overflow-hidden border border-[#CBD5E1] rounded-2xl shadow-sm">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-[#F2F4ED] table-header">
+              <thead className="bg-[#F0F7FF] table-header">
                 <tr>
-                  <th scope="col" className="px-6 py-3.5 text-left text-xs font-bold text-[#4A6741] uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3.5 text-left text-xs font-bold text-[#1E3A8A] uppercase tracking-wider">
                     รายการตรวจ (Investigation)
                   </th>
-                  <th scope="col" className="px-6 py-3.5 text-left text-xs font-bold text-[#4A6741] uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3.5 text-left text-xs font-bold text-[#1E3A8A] uppercase tracking-wider">
                     ค่าที่ตรวจได้ (Result Value)
                   </th>
-                  <th scope="col" className="px-6 py-3.5 text-left text-xs font-bold text-[#4A6741] uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3.5 text-left text-xs font-bold text-[#1E3A8A] uppercase tracking-wider">
                     ค่าอ้างอิงปกติ (Reference Range)
                   </th>
-                  <th scope="col" className="px-6 py-3.5 text-center text-xs font-bold text-[#4A6741] uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-3.5 text-center text-xs font-bold text-[#1E3A8A] uppercase tracking-wider">
                     ผลการประเมิน (Assessment)
                   </th>
                 </tr>
@@ -367,14 +367,14 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
         {/* Attached Files from nurse */}
         {result.attachedFiles && result.attachedFiles.length > 0 && (
           <div className="space-y-3 no-print">
-            <h3 className="text-sm font-bold text-[#4A6741] uppercase tracking-widest border-l-4 border-[#4A6741] pl-3">
+            <h3 className="text-sm font-bold text-[#1E3A8A] uppercase tracking-widest border-l-4 border-[#1E3A8A] pl-3">
               4. เอกสารและใบรายงานผลเพิ่มเติม (Attached Official PDF Results)
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {result.attachedFiles.map((file) => (
                 <div
                   key={file.id}
-                  className="bg-[#F9FAF7] border border-[#E0E4D9] p-4 rounded-xl flex items-center justify-between shadow-sm"
+                  className="bg-[#F8FAFC] border border-[#CBD5E1] p-4 rounded-xl flex items-center justify-between shadow-sm"
                 >
                   <div className="flex items-center space-x-3">
                     <div className="bg-red-100 text-red-700 p-2 rounded-lg">
@@ -417,6 +417,11 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
                               'ใบรับรองแพทย์': 'Medical Certificate',
                               'คัดกรองมะเร็งปากมดลูก': 'Cervical Cancer Screening',
                               'มะเร็งปากมดลูก': 'Pap Smear',
+                              'ตรวจ Memmogram': 'Mammogram Examination',
+                              'ตรวจแมมโมแกรม': 'Mammogram Examination',
+                              'ผลตรวจแมมโมแกรม': 'Mammogram Result',
+                              'แมมโมแกรม': 'Mammogram',
+                              'Memmogram': 'Mammogram',
                               'ผลตรวจปัสสาวะ': 'Urine Analysis Report',
                               'ผลตรวจอุจจาระ': 'Stool Exam Report',
                               'ผลตรวจเลือด': 'Blood Test Report',
@@ -525,7 +530,7 @@ startxref
                         alert('ไม่สามารถดาวน์โหลดไฟล์ได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง');
                       }
                     }}
-                    className="text-xs font-bold text-[#4A6741] hover:text-[#3d5635] flex items-center space-x-1 border border-[#E0E4D9] hover:border-[#4A6741] px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+                    className="text-xs font-bold text-[#1E3A8A] hover:text-[#1D4ED8] flex items-center space-x-1 border border-[#CBD5E1] hover:border-[#1E3A8A] px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
                   >
                     <Download className="h-3 w-3" />
                     <span>ดาวน์โหลด</span>
@@ -537,16 +542,16 @@ startxref
         )}
 
         {/* Recommendations block */}
-        <div className="bg-[#F2F4ED] border border-[#E0E4D9] rounded-2xl p-6 sm:p-8 space-y-4">
-          <div className="flex items-center space-x-2 text-[#4A6741]">
-            <ShieldAlert className="h-5 w-5 text-[#4A6741]" />
+        <div className="bg-[#F0F7FF] border border-[#CBD5E1] rounded-2xl p-6 sm:p-8 space-y-4">
+          <div className="flex items-center space-x-2 text-[#1E3A8A]">
+            <ShieldAlert className="h-5 w-5 text-[#1E3A8A]" />
             <h4 className="text-base font-extrabold">สรุปภาพรวมและคำแนะนำส่วนบุคคลเพื่อการปรับเปลี่ยนพฤติกรรม (Clinical Impression & Personalized Plan)</h4>
           </div>
-          <p className="text-sm font-semibold text-gray-700 leading-relaxed border-b border-[#E0E4D9] pb-3">
+          <p className="text-sm font-semibold text-gray-700 leading-relaxed border-b border-[#CBD5E1] pb-3">
             {result.summary}
           </p>
           <div className="space-y-2">
-            <p className="text-xs text-[#4A6741] font-bold uppercase tracking-wider">แนวทางปฏิบัติเพื่อสุขภาพที่ดีขึ้น (Actionable Recommendations):</p>
+            <p className="text-xs text-[#1E3A8A] font-bold uppercase tracking-wider">แนวทางปฏิบัติเพื่อสุขภาพที่ดีขึ้น (Actionable Recommendations):</p>
             <ul className="text-xs text-gray-600 space-y-1.5 list-disc list-inside">
               {result.recommendations.map((rec, idx) => (
                 <li key={idx} className="leading-relaxed font-medium">
