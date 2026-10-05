@@ -1,7 +1,20 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Patient, LabResult, Appointment, AttachedFile } from '../types';
 import { BASIC_TESTS, SPECIAL_TESTS } from '../data';
-import { Printer, Download, ArrowLeft, ShieldAlert, CheckCircle2, User, HelpCircle, FileText, Eye, ArrowLeftRight } from 'lucide-react';
+import {
+  Printer,
+  Download,
+  ArrowLeft,
+  ShieldAlert,
+  CheckCircle2,
+  User,
+  HelpCircle,
+  FileText,
+  Eye,
+  ArrowLeftRight,
+  ChevronLeft,
+  ChevronRight
+} from 'lucide-react';
 import { downloadPdfFile } from '../lib/pdfHelper';
 import PdfPreviewModal from './PdfPreviewModal';
 
@@ -14,7 +27,32 @@ interface OfficialReportProps {
 
 export default function OfficialReport({ patient, result, appointment, onBack }: OfficialReportProps) {
   const printAreaRef = useRef<HTMLDivElement>(null);
+  const labTableScrollRef = useRef<HTMLDivElement>(null);
   const [previewFile, setPreviewFile] = useState<AttachedFile | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScrollPosition = () => {
+    if (labTableScrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = labTableScrollRef.current;
+      setCanScrollLeft(scrollLeft > 10);
+      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 10);
+    }
+  };
+
+  const scrollLabTable = (direction: 'left' | 'right') => {
+    if (labTableScrollRef.current) {
+      const offset = direction === 'left' ? -260 : 260;
+      labTableScrollRef.current.scrollBy({ left: offset, behavior: 'smooth' });
+      setTimeout(checkScrollPosition, 300);
+    }
+  };
+
+  useEffect(() => {
+    checkScrollPosition();
+    window.addEventListener('resize', checkScrollPosition);
+    return () => window.removeEventListener('resize', checkScrollPosition);
+  }, []);
 
   const handlePrint = () => {
     const printContent = printAreaRef.current?.innerHTML;
@@ -57,6 +95,10 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
             border: none !important;
             box-shadow: none !important;
             padding: 0 !important;
+          }
+          .sticky-col {
+            position: static !important;
+            box-shadow: none !important;
           }
           .table-header {
             background-color: #f3f4f6 !important;
@@ -155,7 +197,7 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
       <div
         ref={printAreaRef}
         id="official-print-report"
-        className="bg-white border-2 border-[#CBD5E1] shadow-md rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-12 text-left space-y-8 font-sans print-card relative"
+        className="bg-white border-2 border-[#CBD5E1] shadow-md rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-12 text-left space-y-8 font-sans print-card relative max-w-full overflow-hidden"
       >
         {/* Decorative Stamp for Official Document Look */}
         <div className="absolute top-12 right-12 border-4 border-red-400/40 text-red-400/40 font-extrabold uppercase tracking-widest text-[11px] sm:text-xs py-1 px-3 sm:py-1.5 sm:px-4 rounded-xl rotate-12 pointer-events-none select-none">
@@ -304,42 +346,103 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
 
         {/* Lab Parameters table */}
         <div className="space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-l-4 border-[#1E3A8A] pl-3">
-            <h3 className="text-sm font-bold text-[#1E3A8A] uppercase tracking-widest">
-              3. สรุปผลการตรวจทางห้องปฏิบัติการ (Laboratory Investigation Results)
-            </h3>
-            <span className="sm:hidden inline-flex items-center gap-1 text-[11px] text-sky-800 font-semibold bg-sky-50 px-2 py-0.5 rounded-md border border-sky-200 self-start">
-              <ArrowLeftRight className="h-3 w-3 text-sky-600 animate-pulse" />
-              <span>แตะเลื่อนซ้าย-ขวา เพื่อดูผลประเมิน</span>
-            </span>
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 border-l-4 border-[#1E3A8A] pl-3">
+            <div>
+              <h3 className="text-sm font-bold text-[#1E3A8A] uppercase tracking-widest">
+                3. สรุปผลการตรวจทางห้องปฏิบัติการ (Laboratory Investigation Results)
+              </h3>
+              <p className="text-[11px] text-gray-500 font-medium">
+                รายละเอียดผลตรวจทางห้องปฏิบัติการ ค่าอ้างอิงมาตรฐาน และการประเมินผลทางการแพทย์
+              </p>
+            </div>
+
+            {/* Quick scroll controls for Phones and Tablets */}
+            <div className="lg:hidden flex items-center gap-2 self-start sm:self-auto no-print">
+              <span className="inline-flex items-center gap-1.5 text-[11px] text-sky-900 font-semibold bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200">
+                <ArrowLeftRight className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
+                <span>เลื่อนซ้าย-ขวาเพื่อดูรายละเอียด</span>
+              </span>
+              <div className="flex items-center space-x-1">
+                <button
+                  type="button"
+                  onClick={() => scrollLabTable('left')}
+                  disabled={!canScrollLeft}
+                  className={`p-1.5 rounded-lg border text-xs flex items-center transition-all ${
+                    canScrollLeft
+                      ? 'bg-white text-blue-900 border-blue-200 hover:bg-blue-50 active:scale-95 shadow-xs cursor-pointer'
+                      : 'bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed'
+                  }`}
+                  title="เลื่อนไปทางซ้าย"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollLabTable('right')}
+                  disabled={!canScrollRight}
+                  className={`p-1.5 rounded-lg border text-xs flex items-center transition-all ${
+                    canScrollRight
+                      ? 'bg-white text-blue-900 border-blue-200 hover:bg-blue-50 active:scale-95 shadow-xs cursor-pointer'
+                      : 'bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed'
+                  }`}
+                  title="เลื่อนไปทางขวา"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
           </div>
 
           <div className="border border-[#CBD5E1] rounded-2xl shadow-sm overflow-hidden bg-white">
-            {/* Mobile swipe helper bar */}
-            <div className="sm:hidden bg-gradient-to-r from-sky-50 via-blue-50/40 to-slate-50 border-b border-sky-100 px-3.5 py-2 flex items-center justify-between text-[11px] text-sky-950 font-medium">
+            {/* Mobile & Tablet swipe helper bar */}
+            <div className="lg:hidden bg-gradient-to-r from-sky-50 via-blue-50/50 to-slate-50 border-b border-sky-100 px-3.5 py-2.5 flex items-center justify-between text-xs text-sky-950 font-medium no-print">
               <span className="flex items-center gap-1.5">
-                <ArrowLeftRight className="h-3.5 w-3.5 text-blue-700 shrink-0" />
-                <span>เลื่อนตารางซ้าย-ขวาเพื่อดูค่าอ้างอิงและผลประเมิน</span>
+                <ArrowLeftRight className="h-4 w-4 text-blue-700 shrink-0" />
+                <span className="text-[11px] sm:text-xs">
+                  หน้าจอโทรศัพท์/แท็บเล็ต: สามารถใช้นิ้วปัดเลื่อนซ้าย-ขวา หรือกดปุ่มเลื่อนดูได้
+                </span>
               </span>
-              <span className="text-[10px] text-blue-700 bg-sky-200/70 px-1.5 py-0.5 rounded font-mono shrink-0">
-                เลื่อนดู &rarr;
-              </span>
+              <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                <button
+                  type="button"
+                  onClick={() => scrollLabTable('left')}
+                  className="px-2.5 py-1 bg-white hover:bg-blue-50 text-blue-800 text-[11px] font-bold rounded-md border border-blue-200 shadow-2xs flex items-center gap-1 cursor-pointer active:scale-95 transition-all"
+                >
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                  <span>ซ้าย</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollLabTable('right')}
+                  className="px-2.5 py-1 bg-blue-700 hover:bg-blue-800 text-white text-[11px] font-bold rounded-md shadow-2xs flex items-center gap-1 cursor-pointer active:scale-95 transition-all"
+                >
+                  <span>ขวา</span>
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
 
-            <div className="overflow-x-auto w-full overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch]">
-              <table className="min-w-[620px] w-full divide-y divide-gray-200">
+            <div
+              ref={labTableScrollRef}
+              onScroll={checkScrollPosition}
+              className="overflow-x-auto w-full overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch]"
+            >
+              <table className="min-w-[760px] md:min-w-[820px] w-full divide-y divide-gray-200">
                 <thead className="bg-[#F0F7FF] table-header">
                   <tr>
-                    <th scope="col" className="px-5 py-3.5 text-left text-xs font-bold text-[#1E3A8A] uppercase tracking-wider min-w-[200px]">
+                    <th
+                      scope="col"
+                      className="sticky-col sticky left-0 z-20 bg-[#F0F7FF] px-5 py-3.5 text-left text-xs font-bold text-[#1E3A8A] uppercase tracking-wider min-w-[220px] shadow-[2px_0_6px_-2px_rgba(0,0,0,0.06)]"
+                    >
                       รายการตรวจ (Investigation)
                     </th>
-                    <th scope="col" className="px-5 py-3.5 text-left text-xs font-bold text-[#1E3A8A] uppercase tracking-wider min-w-[150px]">
+                    <th scope="col" className="px-5 py-3.5 text-left text-xs font-bold text-[#1E3A8A] uppercase tracking-wider min-w-[180px]">
                       ค่าที่ตรวจได้ (Result Value)
                     </th>
-                    <th scope="col" className="px-5 py-3.5 text-left text-xs font-bold text-[#1E3A8A] uppercase tracking-wider min-w-[130px]">
+                    <th scope="col" className="px-5 py-3.5 text-left text-xs font-bold text-[#1E3A8A] uppercase tracking-wider min-w-[180px]">
                       ค่าอ้างอิงปกติ (Reference Range)
                     </th>
-                    <th scope="col" className="px-5 py-3.5 text-center text-xs font-bold text-[#1E3A8A] uppercase tracking-wider min-w-[120px]">
+                    <th scope="col" className="px-5 py-3.5 text-center text-xs font-bold text-[#1E3A8A] uppercase tracking-wider min-w-[150px]">
                       ผลการประเมิน (Assessment)
                     </th>
                   </tr>
@@ -351,8 +454,8 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
                     if (!meta) return null;
                     const isDeclined = item.status === 'ไม่ประสงค์ตรวจ' || item.value === 'ไม่ประสงค์ตรวจ';
                     return (
-                      <tr key={key} className={`hover:bg-gray-50 transition-colors ${isDeclined ? 'bg-red-50/10' : ''}`}>
-                        <td className="px-5 py-3.5 whitespace-nowrap">
+                      <tr key={key} className={`group hover:bg-sky-50/30 transition-colors ${isDeclined ? 'bg-red-50/10' : ''}`}>
+                        <td className="sticky-col sticky left-0 z-10 bg-white group-hover:bg-[#F8FAFC] px-5 py-3.5 whitespace-nowrap shadow-[2px_0_6px_-2px_rgba(0,0,0,0.06)] transition-colors">
                           <div className="space-y-0.5">
                             <p className={`font-bold text-sm ${isDeclined ? 'text-gray-400 line-through' : 'text-gray-800'}`}>{meta.name}</p>
                             <p className="text-[10px] text-gray-400 font-medium line-clamp-1">{meta.detail}</p>
@@ -365,16 +468,22 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
                             </span>
                           ) : (
                             <span className={`font-extrabold font-mono text-sm ${isDeclined ? 'text-red-700/80 font-bold' : 'text-gray-900'}`}>
-                              {item.value} {!isDeclined && <span className="text-xs font-medium text-gray-500">{meta.unit}</span>}
+                              {item.value} {!isDeclined && <span className="text-xs font-medium text-gray-500 ml-1">{meta.unit}</span>}
                             </span>
                           )}
                         </td>
-                        <td className="px-5 py-3.5 whitespace-nowrap text-xs text-gray-500 font-mono">
-                          {isDeclined ? 'ไม่ได้ตรวจสอบ' : meta.refRange}
+                        <td className="px-5 py-3.5 whitespace-nowrap text-xs text-gray-600 font-mono">
+                          {isDeclined ? (
+                            'ไม่ได้ตรวจสอบ'
+                          ) : (
+                            <span className="bg-slate-100 text-slate-700 px-2 py-1 rounded-md border border-slate-200 font-semibold">
+                              {meta.refRange}
+                            </span>
+                          )}
                         </td>
                         <td className="px-5 py-3.5 whitespace-nowrap text-center">
-                          <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold border ${getStatusColor(item.status)}`}>
-                            {item.status}
+                          <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border shadow-3xs ${getStatusColor(item.status)}`}>
+                            {getStatusBadgeText(item.status)}
                           </span>
                         </td>
                       </tr>
@@ -382,6 +491,18 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
                   })}
                 </tbody>
               </table>
+            </div>
+
+            {/* Bottom scroll status bar on mobile/tablet */}
+            <div className="lg:hidden bg-slate-50 border-t border-slate-100 px-4 py-2 flex items-center justify-between text-[11px] text-slate-500 no-print">
+              <span>
+                {canScrollRight
+                  ? '👉 มีข้อมูลทางขวา (เลื่อนเพื่อดูผลการประเมิน)'
+                  : '👈 แสดงข้อมูลครบถ้วนแล้ว (เลื่อนซ้ายเพื่อดูชื่อตรวจ)'}
+              </span>
+              <div className="flex gap-2 font-mono text-[10px] text-slate-400">
+                <span>แตะลากเลื่อนได้ ⇄</span>
+              </div>
             </div>
           </div>
         </div>

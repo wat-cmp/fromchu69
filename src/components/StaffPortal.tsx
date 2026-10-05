@@ -159,7 +159,7 @@ export default function StaffPortal({
   // Handle Staff Login
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passwordInput === 'checkup7036') {
+    if (passwordInput.trim() === 'hongtrootuuh') {
       setIsStaffLoggedIn(true);
       setLoginError('');
       setPasswordInput('');
