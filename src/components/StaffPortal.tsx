@@ -4,6 +4,8 @@ import { Patient, Appointment, LM6Assessment, LabResult, AttachedFile } from '..
 import { BASIC_TESTS, SPECIAL_TESTS, LM6_PILLARS_DETAILS, getBasicProgramDetails } from '../data';
 import SignaturePad from './SignaturePad';
 import { saveFileContent } from '../lib/fileStorage';
+import { downloadPdfFile } from '../lib/pdfHelper';
+import PdfPreviewModal from './PdfPreviewModal';
 import {
   ShieldCheck, Lock, Search, Eye, User, Calendar, FileText, Check, Plus,
   Upload, FileUp, ClipboardList, Trash2, ArrowRight, AlertCircle, RefreshCw, Edit2, Activity,
@@ -93,6 +95,7 @@ export default function StaffPortal({
   // File Uploader states
   const [uploadCategory, setUploadCategory] = useState('Chest X-Ray');
   const [uploadedFiles, setUploadedFiles] = useState<AttachedFile[]>([]);
+  const [previewFile, setPreviewFile] = useState<AttachedFile | null>(null);
   const [doctorName, setDoctorName] = useState('พญ. นภัสวรรณ อุ่นใจ');
   const [doctorLicense, setDoctorLicense] = useState('ว.70369');
   const [doctorSignature, setDoctorSignature] = useState<string | undefined>(undefined);
@@ -586,7 +589,7 @@ export default function StaffPortal({
         await saveFileContent(newFile.id, base64Url);
 
         setUploadedFiles([...uploadedFiles, newFile]);
-        alert(`อัปโหลดและบันทึกไฟล์รายงาน PDF "${file.name}" สำเร็จสำหรับหัวข้อ "${uploadCategory}" (สามารถกดดาวน์โหลดไฟล์จริงได้ในส่วนแสดงผล)`);
+        alert(`อัปโหลดและบันทึกไฟล์รายงาน PDF "${file.name}" สำเร็จสำหรับหัวข้อ "${uploadCategory}" (สามารถกดเปิดดูตัวอย่างหรือดาวน์โหลดไฟล์ได้ทันที)`);
       };
 
       reader.onerror = () => {
@@ -1578,23 +1581,59 @@ export default function StaffPortal({
                   <p className="text-xs font-bold text-gray-500">รายการไฟล์แนบที่ผูกกับรายงานตรวจสุขภาพแล้ว:</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     {uploadedFiles.map((file) => (
-                      <div key={file.id} className="bg-white p-3 border border-[#CBD5E1] rounded-xl flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <div className="bg-red-50 text-red-600 p-1.5 rounded">
+                      <div
+                        key={file.id}
+                        className="bg-white p-3 border border-slate-200 rounded-xl flex items-center justify-between shadow-3xs hover:border-sky-300 transition-all gap-2"
+                      >
+                        <div
+                          onClick={() => setPreviewFile(file)}
+                          className="flex items-center space-x-2.5 cursor-pointer min-w-0 flex-1"
+                          title="คลิกเพื่อเปิดดูตัวอย่างเอกสาร (Preview)"
+                        >
+                          <div className="bg-red-50 text-red-600 p-2 rounded-lg border border-red-100 shrink-0">
                             <FileText className="h-4 w-4" />
                           </div>
-                          <div>
-                            <p className="font-bold text-gray-800 line-clamp-1">{file.name}</p>
-                            <p className="text-[10px] text-gray-400">{file.category} • {file.size}</p>
+                          <div className="min-w-0">
+                            <p className="font-bold text-gray-800 line-clamp-1 hover:text-blue-900 transition-colors">{file.name}</p>
+                            <p className="text-[10px] text-gray-400 font-mono">{file.category} • {file.size}</p>
                           </div>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveFile(file.id)}
-                          className="text-red-500 hover:text-red-700 p-1 cursor-pointer"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+
+                        <div className="flex items-center space-x-1 shrink-0">
+                          {/* Preview Button */}
+                          <button
+                            type="button"
+                            onClick={() => setPreviewFile(file)}
+                            className="text-blue-900 bg-sky-100 hover:bg-blue-800 hover:text-white px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-3xs"
+                            title="เปิดดูไฟล์ในระบบ (In-App Preview)"
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                            <span>เปิดดู</span>
+                          </button>
+
+                          {/* Download Button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const patientName = selectedAppointment ? patients.find(p => p.id === selectedAppointment.patientId)?.name : undefined;
+                              downloadPdfFile(file, patientName);
+                            }}
+                            className="text-slate-600 bg-slate-100 hover:bg-slate-200 p-1.5 rounded-lg text-xs transition-all cursor-pointer"
+                            title="ดาวน์โหลดไฟล์ลงเครื่อง"
+                          >
+                            <Download className="h-3.5 w-3.5" />
+                          </button>
+
+                          {/* Delete Button */}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveFile(file.id)}
+                            className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded-lg transition-all cursor-pointer"
+                            title="ลบไฟล์แนบนี้"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -2798,6 +2837,14 @@ export default function StaffPortal({
           </div>
         </div>
       )}
+
+      {/* In-App PDF Preview Modal */}
+      <PdfPreviewModal
+        isOpen={!!previewFile}
+        file={previewFile}
+        patientName={selectedAppointment ? patients.find(p => p.id === selectedAppointment.patientId)?.name : undefined}
+        onClose={() => setPreviewFile(null)}
+      />
     </div>
   );
 }

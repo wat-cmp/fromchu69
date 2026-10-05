@@ -1,8 +1,9 @@
-import React, { useRef } from 'react';
-import { Patient, LabResult, Appointment } from '../types';
+import React, { useRef, useState } from 'react';
+import { Patient, LabResult, Appointment, AttachedFile } from '../types';
 import { BASIC_TESTS, SPECIAL_TESTS } from '../data';
-import { Printer, Download, ArrowLeft, ShieldAlert, CheckCircle2, User, HelpCircle, FileText } from 'lucide-react';
-import { getFileContent } from '../lib/fileStorage';
+import { Printer, Download, ArrowLeft, ShieldAlert, CheckCircle2, User, HelpCircle, FileText, Eye, ArrowLeftRight } from 'lucide-react';
+import { downloadPdfFile } from '../lib/pdfHelper';
+import PdfPreviewModal from './PdfPreviewModal';
 
 interface OfficialReportProps {
   patient: Patient;
@@ -13,6 +14,7 @@ interface OfficialReportProps {
 
 export default function OfficialReport({ patient, result, appointment, onBack }: OfficialReportProps) {
   const printAreaRef = useRef<HTMLDivElement>(null);
+  const [previewFile, setPreviewFile] = useState<AttachedFile | null>(null);
 
   const handlePrint = () => {
     const printContent = printAreaRef.current?.innerHTML;
@@ -153,7 +155,7 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
       <div
         ref={printAreaRef}
         id="official-print-report"
-        className="bg-white border-2 border-[#CBD5E1] shadow-md rounded-3xl p-6 sm:p-12 text-left space-y-8 font-sans print-card relative"
+        className="bg-white border-2 border-[#CBD5E1] shadow-md rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-12 text-left space-y-8 font-sans print-card relative"
       >
         {/* Decorative Stamp for Official Document Look */}
         <div className="absolute top-12 right-12 border-4 border-red-400/40 text-red-400/40 font-extrabold uppercase tracking-widest text-[11px] sm:text-xs py-1 px-3 sm:py-1.5 sm:px-4 rounded-xl rotate-12 pointer-events-none select-none">
@@ -301,66 +303,86 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
         </div>
 
         {/* Lab Parameters table */}
-        <div className="space-y-4">
-          <h3 className="text-sm font-bold text-[#1E3A8A] uppercase tracking-widest border-l-4 border-[#1E3A8A] pl-3">
-            3. สรุปผลการตรวจทางห้องปฏิบัติการ (Laboratory Investigation Results)
-          </h3>
-          <div className="overflow-hidden border border-[#CBD5E1] rounded-2xl shadow-sm">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-[#F0F7FF] table-header">
-                <tr>
-                  <th scope="col" className="px-6 py-3.5 text-left text-xs font-bold text-[#1E3A8A] uppercase tracking-wider">
-                    รายการตรวจ (Investigation)
-                  </th>
-                  <th scope="col" className="px-6 py-3.5 text-left text-xs font-bold text-[#1E3A8A] uppercase tracking-wider">
-                    ค่าที่ตรวจได้ (Result Value)
-                  </th>
-                  <th scope="col" className="px-6 py-3.5 text-left text-xs font-bold text-[#1E3A8A] uppercase tracking-wider">
-                    ค่าอ้างอิงปกติ (Reference Range)
-                  </th>
-                  <th scope="col" className="px-6 py-3.5 text-center text-xs font-bold text-[#1E3A8A] uppercase tracking-wider">
-                    ผลการประเมิน (Assessment)
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200 text-sm">
-                {Object.entries(result.parameters).map(([key, item]) => {
-                  // Find meta from BASIC or SPECIAL list
-                  const meta = BASIC_TESTS[key] || SPECIAL_TESTS[key];
-                  if (!meta) return null;
-                  const isDeclined = item.status === 'ไม่ประสงค์ตรวจ' || item.value === 'ไม่ประสงค์ตรวจ';
-                  return (
-                    <tr key={key} className={`hover:bg-gray-50 transition-colors ${isDeclined ? 'bg-red-50/10' : ''}`}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="space-y-0.5">
-                          <p className={`font-bold text-sm ${isDeclined ? 'text-gray-400 line-through' : 'text-gray-800'}`}>{meta.name}</p>
-                          <p className="text-[10px] text-gray-400 font-medium line-clamp-1">{meta.detail}</p>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {!isDeclined && (!item.value || item.value.trim() === '') ? (
-                          <span className="text-amber-800 bg-amber-50 px-2 py-1 rounded-lg border border-amber-200 font-bold text-xs">
-                            ผลตามเอกสารแนบ
+        <div className="space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-l-4 border-[#1E3A8A] pl-3">
+            <h3 className="text-sm font-bold text-[#1E3A8A] uppercase tracking-widest">
+              3. สรุปผลการตรวจทางห้องปฏิบัติการ (Laboratory Investigation Results)
+            </h3>
+            <span className="sm:hidden inline-flex items-center gap-1 text-[11px] text-sky-800 font-semibold bg-sky-50 px-2 py-0.5 rounded-md border border-sky-200 self-start">
+              <ArrowLeftRight className="h-3 w-3 text-sky-600 animate-pulse" />
+              <span>แตะเลื่อนซ้าย-ขวา เพื่อดูผลประเมิน</span>
+            </span>
+          </div>
+
+          <div className="border border-[#CBD5E1] rounded-2xl shadow-sm overflow-hidden bg-white">
+            {/* Mobile swipe helper bar */}
+            <div className="sm:hidden bg-gradient-to-r from-sky-50 via-blue-50/40 to-slate-50 border-b border-sky-100 px-3.5 py-2 flex items-center justify-between text-[11px] text-sky-950 font-medium">
+              <span className="flex items-center gap-1.5">
+                <ArrowLeftRight className="h-3.5 w-3.5 text-blue-700 shrink-0" />
+                <span>เลื่อนตารางซ้าย-ขวาเพื่อดูค่าอ้างอิงและผลประเมิน</span>
+              </span>
+              <span className="text-[10px] text-blue-700 bg-sky-200/70 px-1.5 py-0.5 rounded font-mono shrink-0">
+                เลื่อนดู &rarr;
+              </span>
+            </div>
+
+            <div className="overflow-x-auto w-full overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch]">
+              <table className="min-w-[620px] w-full divide-y divide-gray-200">
+                <thead className="bg-[#F0F7FF] table-header">
+                  <tr>
+                    <th scope="col" className="px-5 py-3.5 text-left text-xs font-bold text-[#1E3A8A] uppercase tracking-wider min-w-[200px]">
+                      รายการตรวจ (Investigation)
+                    </th>
+                    <th scope="col" className="px-5 py-3.5 text-left text-xs font-bold text-[#1E3A8A] uppercase tracking-wider min-w-[150px]">
+                      ค่าที่ตรวจได้ (Result Value)
+                    </th>
+                    <th scope="col" className="px-5 py-3.5 text-left text-xs font-bold text-[#1E3A8A] uppercase tracking-wider min-w-[130px]">
+                      ค่าอ้างอิงปกติ (Reference Range)
+                    </th>
+                    <th scope="col" className="px-5 py-3.5 text-center text-xs font-bold text-[#1E3A8A] uppercase tracking-wider min-w-[120px]">
+                      ผลการประเมิน (Assessment)
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200 text-sm">
+                  {Object.entries(result.parameters).map(([key, item]) => {
+                    // Find meta from BASIC or SPECIAL list
+                    const meta = BASIC_TESTS[key] || SPECIAL_TESTS[key];
+                    if (!meta) return null;
+                    const isDeclined = item.status === 'ไม่ประสงค์ตรวจ' || item.value === 'ไม่ประสงค์ตรวจ';
+                    return (
+                      <tr key={key} className={`hover:bg-gray-50 transition-colors ${isDeclined ? 'bg-red-50/10' : ''}`}>
+                        <td className="px-5 py-3.5 whitespace-nowrap">
+                          <div className="space-y-0.5">
+                            <p className={`font-bold text-sm ${isDeclined ? 'text-gray-400 line-through' : 'text-gray-800'}`}>{meta.name}</p>
+                            <p className="text-[10px] text-gray-400 font-medium line-clamp-1">{meta.detail}</p>
+                          </div>
+                        </td>
+                        <td className="px-5 py-3.5 whitespace-nowrap">
+                          {!isDeclined && (!item.value || item.value.trim() === '') ? (
+                            <span className="text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 font-bold text-xs">
+                              ผลตามเอกสารแนบ
+                            </span>
+                          ) : (
+                            <span className={`font-extrabold font-mono text-sm ${isDeclined ? 'text-red-700/80 font-bold' : 'text-gray-900'}`}>
+                              {item.value} {!isDeclined && <span className="text-xs font-medium text-gray-500">{meta.unit}</span>}
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-5 py-3.5 whitespace-nowrap text-xs text-gray-500 font-mono">
+                          {isDeclined ? 'ไม่ได้ตรวจสอบ' : meta.refRange}
+                        </td>
+                        <td className="px-5 py-3.5 whitespace-nowrap text-center">
+                          <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold border ${getStatusColor(item.status)}`}>
+                            {item.status}
                           </span>
-                        ) : (
-                          <span className={`font-extrabold font-mono text-sm ${isDeclined ? 'text-red-700/80 font-bold' : 'text-gray-900'}`}>
-                            {item.value} {!isDeclined && <span className="text-xs font-medium text-gray-500">{meta.unit}</span>}
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500 font-mono">
-                        {isDeclined ? 'ไม่ได้ตรวจสอบ' : meta.refRange}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold border ${getStatusColor(item.status)}`}>
-                          {item.status}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -374,167 +396,56 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
               {result.attachedFiles.map((file) => (
                 <div
                   key={file.id}
-                  className="bg-[#F8FAFC] border border-[#CBD5E1] p-4 rounded-xl flex items-center justify-between shadow-sm"
+                  className="bg-white hover:bg-sky-50/40 border border-slate-200 hover:border-sky-300 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-3xs transition-all group"
                 >
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-red-100 text-red-700 p-2 rounded-lg">
+                  <div
+                    onClick={() => setPreviewFile(file)}
+                    className="flex items-center space-x-3 cursor-pointer min-w-0 flex-1"
+                    title="คลิกเพื่อเปิดดูตัวอย่างเอกสาร"
+                  >
+                    <div className="bg-red-50 group-hover:bg-red-100 text-red-600 p-2.5 rounded-xl border border-red-100 shrink-0 transition-colors">
                       <FileText className="h-5 w-5" />
                     </div>
-                    <div className="text-left">
-                      <p className="text-xs font-bold text-gray-800 line-clamp-1">{file.name}</p>
-                      <p className="text-[10px] text-gray-400 font-mono">{file.category} • {file.size}</p>
+                    <div className="text-left min-w-0">
+                      <p className="text-xs font-bold text-slate-800 line-clamp-1 group-hover:text-blue-900 transition-colors">
+                        {file.name}
+                      </p>
+                      <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                        {file.category} • {file.size}
+                      </p>
                     </div>
                   </div>
-                  <button
-                    onClick={async () => {
-                      try {
-                        let targetUrl = file.url;
-                        
-                        // If file.url is empty (removed from Firestore payload), fetch it from IndexedDB
-                        if (!targetUrl || targetUrl === '#' || !targetUrl.startsWith('data:')) {
-                          const localData = await getFileContent(file.id);
-                          if (localData && localData.startsWith('data:')) {
-                            targetUrl = localData;
-                          }
+
+                  <div className="flex items-center space-x-1.5 shrink-0 self-end sm:self-center">
+                    {/* In-App Preview Modal Button */}
+                    <button
+                      type="button"
+                      onClick={() => setPreviewFile(file)}
+                      className="text-xs font-bold text-blue-900 hover:text-white bg-sky-100/90 hover:bg-blue-800 flex items-center space-x-1.5 px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-3xs"
+                      title="เปิดดูเอกสารในระบบ (In-App Preview Modal)"
+                    >
+                      <Eye className="h-3.5 w-3.5 text-blue-800 hover:text-white" />
+                      <span>เปิดดู</span>
+                    </button>
+
+                    {/* Download Button */}
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          await downloadPdfFile(file, patient.name, result.examDate);
+                        } catch (e) {
+                          console.error('Download failed:', e);
+                          alert('ไม่สามารถดาวน์โหลดไฟล์ได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง');
                         }
-
-                        if (targetUrl && targetUrl !== '#' && targetUrl.startsWith('data:')) {
-                          // Real Base64 uploaded PDF
-                          const link = document.createElement('a');
-                          link.href = targetUrl;
-                          link.download = file.name;
-                          document.body.appendChild(link);
-                          link.click();
-                          document.body.removeChild(link);
-                        } else {
-                          // Helper to sanitize and translate Thai words to PDF-safe English characters
-                          const toPdfSafeString = (str: string): string => {
-                            if (!str) return '';
-                            let safeStr = str;
-                            const translationMap: Record<string, string> = {
-                              'ข้อมูลรายละเอียดและคำแนะนำการเตรียมตัว': 'Preparation Guidelines & Info',
-                              'คำแนะนำการเตรียมตัว': 'Preparation Guidelines',
-                              'ใบรับรองแพทย์': 'Medical Certificate',
-                              'คัดกรองมะเร็งปากมดลูก': 'Cervical Cancer Screening',
-                              'มะเร็งปากมดลูก': 'Pap Smear',
-                              'ตรวจ Memmogram': 'Mammogram Examination',
-                              'ตรวจแมมโมแกรม': 'Mammogram Examination',
-                              'ผลตรวจแมมโมแกรม': 'Mammogram Result',
-                              'แมมโมแกรม': 'Mammogram',
-                              'Memmogram': 'Mammogram',
-                              'ผลตรวจปัสสาวะ': 'Urine Analysis Report',
-                              'ผลตรวจอุจจาระ': 'Stool Exam Report',
-                              'ผลตรวจเลือด': 'Blood Test Report',
-                              'ผลตรวจสุขภาพ': 'Health Checkup Report',
-                              'ผลเอกซเรย์': 'X-Ray Report',
-                              'ผลตรวจแลป': 'Lab Test Report',
-                              'ผลแลป': 'Lab Report',
-                              'ผลตรวจ': 'Exam Results',
-                              'ตรวจปัสสาวะ': 'Urine Analysis',
-                              'ตรวจอุจจาระ': 'Stool Exam',
-                              'ปัสสาวะ': 'Urine',
-                              'อุจจาระ': 'Stool',
-                              'ปากมดลูก': 'Cervix',
-                              'รายงาน': 'Report',
-                              'ฟิล์ม': 'Film',
-                              'เอกซเรย์': 'X-Ray',
-                              'รังสี': 'Radiology',
-                              'ทรวงอก': 'Chest',
-                              'ผู้ชาย': 'Male',
-                              'ผู้หญิง': 'Female',
-                              'ชาย': 'Male',
-                              'หญิง': 'Female',
-                              'ประจำปี': 'Annual',
-                              'เพิ่มเติม': 'Additional'
-                            };
-
-                            Object.entries(translationMap).forEach(([thai, eng]) => {
-                              safeStr = safeStr.replace(new RegExp(thai, 'g'), eng);
-                            });
-
-                            // Replace remaining Thai characters to avoid PDF font encoding corruption
-                            safeStr = safeStr.replace(/[\u0E00-\u0E7F]+/g, 'Document');
-                            
-                            // Clean up extra spaces
-                            safeStr = safeStr.replace(/\s+/g, ' ').trim();
-                            
-                            // PDF literal string escaping (parentheses and backslashes)
-                            return safeStr.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
-                          };
-
-                          const safeName = toPdfSafeString(file.name);
-                          const safeCategory = toPdfSafeString(file.category);
-
-                          // Generate a mini valid PDF file with the content dynamically so that the download is REAL and works!
-                          const generateDummyPdf = (filename: string, category: string) => {
-                            const doc = `%PDF-1.4
-1 0 obj
-<< /Type /Catalog /Pages 2 0 R >>
-endobj
-2 0 obj
-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
-endobj
-3 0 obj
-<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 4 0 R >> >> /MediaBox [0 0 595.275 841.889] /Contents 5 0 R >>
-endobj
-4 0 obj
-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
-endobj
-5 0 obj
-<< /Length 120 >>
-stream
-BT
-/F1 18 Tf
-70 750 Td
-(UBUH Health Checkup Center - Attached Document) Tj
-/F1 12 Tf
-0 -30 Td
-(Document Name: ${filename}) Tj
-0 -20 Td
-(Category: ${category}) Tj
-0 -20 Td
-(Date: ${new Date().toLocaleDateString('th-TH')}) Tj
-0 -40 Td
-(This is a simulated PDF file for the health checkup portal.) Tj
-ET
-endstream
-endobj
-xref
-0 6
-0000000000 65535 f 
-0000000009 00000 n 
-0000000058 00000 n 
-0000000115 00000 n 
-0000000242 00000 n 
-0000000311 00000 n 
-trailer
-<< /Size 6 /Root 1 0 R >>
-startxref
-481
-%%EOF`;
-                            return new Blob([doc], { type: 'application/pdf' });
-                          };
-
-                          const blob = generateDummyPdf(safeName, safeCategory);
-                          const downloadUrl = URL.createObjectURL(blob);
-                          const link = document.createElement('a');
-                          link.href = downloadUrl;
-                          link.download = file.name;
-                          document.body.appendChild(link);
-                          link.click();
-                          document.body.removeChild(link);
-                          URL.revokeObjectURL(downloadUrl);
-                        }
-                      } catch (error) {
-                        console.error('Download failed:', error);
-                        alert('ไม่สามารถดาวน์โหลดไฟล์ได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง');
-                      }
-                    }}
-                    className="text-xs font-bold text-[#1E3A8A] hover:text-[#1D4ED8] flex items-center space-x-1 border border-[#CBD5E1] hover:border-[#1E3A8A] px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
-                  >
-                    <Download className="h-3 w-3" />
-                    <span>ดาวน์โหลด</span>
-                  </button>
+                      }}
+                      className="text-xs font-bold text-slate-700 hover:text-blue-900 bg-white hover:bg-slate-50 flex items-center space-x-1.5 border border-slate-200 hover:border-blue-400 px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-3xs"
+                      title="ดาวน์โหลดไฟล์ลงเครื่อง"
+                    >
+                      <Download className="h-3.5 w-3.5 text-slate-500" />
+                      <span>ดาวน์โหลด</span>
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -598,6 +509,15 @@ startxref
           </div>
         </div>
       </div>
+
+      {/* In-App PDF Preview Modal */}
+      <PdfPreviewModal
+        isOpen={!!previewFile}
+        file={previewFile}
+        patientName={patient.name}
+        examDate={result.examDate}
+        onClose={() => setPreviewFile(null)}
+      />
     </div>
   );
 }

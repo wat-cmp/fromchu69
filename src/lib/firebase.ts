@@ -1,14 +1,17 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { initializeFirestore, setLogLevel } from 'firebase/firestore';
+import firebaseConfig from '../../firebase-applet-config.json';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDxwYrf6I3ShBqo68bEFXOJ3HIeM8RLW1Q",
-  authDomain: "total-isomer-3fbwx.firebaseapp.com",
-  projectId: "total-isomer-3fbwx",
-  storageBucket: "total-isomer-3fbwx.firebasestorage.app",
-  messagingSenderId: "296296231603",
-  appId: "1:296296231603:web:e9f6ef788dc8ba0417f6c6"
-};
+// Silence non-critical transport reconnect stream warnings from developer overlay
+setLogLevel('error');
 
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app, "ai-studio-ubuhhealthchecku-15391fba-9eb7-425f-89fd-38958b0c1086");
+
+// Initialize Firestore with auto-detect long polling to prevent WebChannel RPC Listen transport drops in proxy/iframe
+export const db = initializeFirestore(
+  app,
+  {
+    experimentalAutoDetectLongPolling: true,
+  },
+  firebaseConfig.firestoreDatabaseId
+);
