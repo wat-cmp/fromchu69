@@ -737,9 +737,24 @@ export default function StaffPortal({
   };
 
   const handleEditBirthDateChange = (dateStr: string) => {
-    setEditBirthDate(dateStr);
+    let normalized = dateStr;
     if (dateStr) {
-      const birth = new Date(dateStr);
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        let year = parseInt(parts[0], 10);
+        if (year > 2400) {
+          year -= 543;
+          normalized = `${year}-${parts[1]}-${parts[2]}`;
+        }
+      }
+    }
+    setEditBirthDate(normalized);
+    if (normalized) {
+      const parts = normalized.split('-');
+      let year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      const birth = new Date(year, month, day);
       const today = new Date();
       let calculatedAge = today.getFullYear() - birth.getFullYear();
       const monthDiff = today.getMonth() - birth.getMonth();
@@ -2592,13 +2607,21 @@ export default function StaffPortal({
                 {/* Omitted National ID to protect PDPA */}
 
                 <div className="space-y-1">
-                  <label className="font-bold text-gray-500">วันเกิด (ค.ศ.)</label>
+                  <div className="flex items-center justify-between">
+                    <label className="font-bold text-gray-500">วันเกิด (ค.ศ.)</label>
+                    {editBirthDate && (
+                      <span className="text-xs text-[#1E3A8A] font-bold">
+                        (พ.ศ. {parseInt(editBirthDate.split('-')[0] || '0', 10) + 543})
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="date"
                     value={editBirthDate}
                     onChange={(e) => handleEditBirthDateChange(e.target.value)}
                     className="p-2.5 border border-gray-200 rounded-lg w-full text-sm font-mono focus:outline-none focus:ring-1 focus:ring-[#1E3A8A]"
                   />
+                  <p className="text-[10px] text-gray-400">* ระบบจัดเก็บเป็น ค.ศ. เสมอเพื่อความถูกต้องตามมาตรฐานสากล</p>
                 </div>
 
                 <div className="space-y-1">

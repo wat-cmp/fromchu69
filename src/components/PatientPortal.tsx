@@ -19,6 +19,28 @@ interface PatientPortalProps {
   setLoggedInPatient: (patient: Patient | null) => void;
 }
 
+const THAI_MONTHS = [
+  { value: '01', name: 'มกราคม (ม.ค. / 01)' },
+  { value: '02', name: 'กุมภาพันธ์ (ก.พ. / 02)' },
+  { value: '03', name: 'มีนาคม (มี.ค. / 03)' },
+  { value: '04', name: 'เมษายน (เม.ย. / 04)' },
+  { value: '05', name: 'พฤษภาคม (พ.ค. / 05)' },
+  { value: '06', name: 'มิถุนายน (มิ.ย. / 06)' },
+  { value: '07', name: 'กรกฎาคม (ก.ค. / 07)' },
+  { value: '08', name: 'สิงหาคม (ส.ค. / 08)' },
+  { value: '09', name: 'กันยายน (ก.ย. / 09)' },
+  { value: '10', name: 'ตุลาคม (ต.ค. / 10)' },
+  { value: '11', name: 'พฤศจิกายน (พ.ย. / 11)' },
+  { value: '12', name: 'ธันวาคม (ธ.ค. / 12)' },
+];
+
+const CURRENT_YEAR = new Date().getFullYear();
+const BIRTH_YEARS = Array.from({ length: 105 }, (_, i) => {
+  const ad = CURRENT_YEAR - i;
+  const be = ad + 543;
+  return { ad: String(ad), be: String(be), label: `ค.ศ. ${ad} (พ.ศ. ${be})` };
+});
+
 export default function PatientPortal({
   patients,
   appointments,
@@ -42,6 +64,10 @@ export default function PatientPortal({
   const [regPhone, setRegPhone] = useState('');
   const [regGender, setRegGender] = useState<'female' | 'male'>('female');
   const [regBirthDate, setRegBirthDate] = useState('');
+  const [regBirthDay, setRegBirthDay] = useState('');
+  const [regBirthMonth, setRegBirthMonth] = useState('');
+  const [regBirthYear, setRegBirthYear] = useState('');
+  const [useCalendarPicker, setUseCalendarPicker] = useState(false);
   const [regAge, setRegAge] = useState<number>(35);
   const [regPassword, setRegPassword] = useState('');
   const [regError, setRegError] = useState('');
@@ -73,10 +99,16 @@ export default function PatientPortal({
   // Password requirement regex check
   const isPasswordValid = (pw: string) => /^[A-Z]{4}\d{4,6}$/.test(pw);
 
-  // Calculate age helper
+  // Calculate age helper safely handling both A.D. (ค.ศ.) and B.E. (พ.ศ.)
   const calculateAge = (bDateStr: string) => {
     if (!bDateStr) return 0;
-    const birth = new Date(bDateStr);
+    const parts = bDateStr.split('-');
+    if (parts.length !== 3) return 0;
+    let year = parseInt(parts[0], 10);
+    if (year > 2400) year -= 543;
+    const month = parseInt(parts[1], 10) - 1;
+    const day = parseInt(parts[2], 10);
+    const birth = new Date(year, month, day);
     const today = new Date();
     let calculatedAge = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
@@ -86,22 +118,66 @@ export default function PatientPortal({
     return calculatedAge > 0 ? calculatedAge : 0;
   };
 
+  // Update birth date from explicit Day, Month, Year dropdowns (Always in A.D. / ค.ศ.)
+  const updateBirthDateFromDropdowns = (day: string, month: string, year: string) => {
+    setRegBirthDay(day);
+    setRegBirthMonth(month);
+    setRegBirthYear(year);
+
+    if (day && month && year) {
+      const formatted = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      setRegBirthDate(formatted);
+      const calculated = calculateAge(formatted);
+      setRegAge(calculated);
+    } else {
+      setRegBirthDate('');
+    }
+  };
+
+  // Handle native calendar picker change (Auto-normalizes B.E. / พ.ศ. > 2400 to A.D. / ค.ศ.)
   const handleBirthDateChange = (dateStr: string) => {
-    setRegBirthDate(dateStr);
-    const calculated = calculateAge(dateStr);
+    if (!dateStr) {
+      setRegBirthDate('');
+      setRegBirthDay('');
+      setRegBirthMonth('');
+      setRegBirthYear('');
+      return;
+    }
+    let normalized = dateStr;
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      let y = parseInt(parts[0], 10);
+      if (y > 2400) {
+        y -= 543;
+      }
+      const m = parts[1];
+      const d = parts[2];
+      normalized = `${y}-${m}-${d}`;
+      setRegBirthYear(String(y));
+      setRegBirthMonth(m);
+      setRegBirthDay(String(parseInt(d, 10)));
+    }
+    setRegBirthDate(normalized);
+    const calculated = calculateAge(normalized);
     setRegAge(calculated);
   };
 
-  // Handle Login
+  // Handle Login - Supports both A.D. (ค.ศ. เช่น 19958249) and B.E. (พ.ศ. เช่น 25388249)
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
     const inputId = loginIdentity.trim();
     const found = patients.find((p) => {
       if (!p.birthDate || !p.hn) return false;
-      const birthYear = p.birthDate.substring(0, 4); // YYYY from YYYY-MM-DD
-      const expectedId = `${birthYear}${p.hn}`;
-      return expectedId === inputId && p.password === loginPassword.trim();
+      const parts = p.birthDate.split('-');
+      let birthYearAD = parseInt(parts[0], 10);
+      if (birthYearAD > 2400) birthYearAD -= 543;
+      const birthYearBE = birthYearAD + 543;
+
+      const expectedIdAD = `${birthYearAD}${p.hn}`;
+      const expectedIdBE = `${birthYearBE}${p.hn}`;
+
+      return (expectedIdAD === inputId || expectedIdBE === inputId) && p.password === loginPassword.trim();
     });
 
     if (found) {
@@ -109,7 +185,7 @@ export default function PatientPortal({
       setLoginIdentity('');
       setLoginPassword('');
     } else {
-      setLoginError('รหัสระบุตัวตน (ค.ศ.เกิด + HN) หรือรหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง (สำหรับผู้รับบริการใหม่ กรุณารอเจ้าหน้าที่ออกหมายเลข HN ในระบบก่อนเข้าสู่ระบบ)');
+      setLoginError('รหัสระบุตัวตน (ปีเกิด ค.ศ. หรือ พ.ศ. + HN) หรือรหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง (สำหรับผู้รับบริการใหม่ กรุณารอเจ้าหน้าที่ออกหมายเลข HN ในระบบก่อนเข้าสู่ระบบ)');
     }
   };
 
@@ -161,6 +237,9 @@ export default function PatientPortal({
       setRegName('');
       setRegPhone('');
       setRegBirthDate('');
+      setRegBirthDay('');
+      setRegBirthMonth('');
+      setRegBirthYear('');
       setRegPassword('');
       setRegPdpaConsent(false);
       setRegSuccess(false);
@@ -400,14 +479,14 @@ export default function PatientPortal({
                 )}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    รหัสระบุตัวตน (ค.ศ.เกิด + HN)
+                    รหัสระบุตัวตน (ปีเกิด ค.ศ. หรือ พ.ศ. + HN)
                   </label>
                   <div className="relative">
                     <User className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
                     <input
                       type="text"
                       maxLength={20}
-                      placeholder="เช่น ค.ศ.เกิด 1995 + HN 8249 = 19958249"
+                      placeholder="เช่น ค.ศ. 1995 (หรือ พ.ศ. 2538) + HN 8249 = 19958249"
                       value={loginIdentity}
                       onChange={(e) => setLoginIdentity(e.target.value.replace(/[^a-zA-Z0-9]/g, ''))}
                       className="pl-10 pr-4 py-3 w-full border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent font-mono"
@@ -415,7 +494,7 @@ export default function PatientPortal({
                     />
                   </div>
                   <p className="text-[10px] text-gray-400 leading-normal">
-                    * กรอกปี ค.ศ. เกิดของท่าน (4 หลัก) ติดกันด้วยหมายเลข HN ของท่าน
+                    * กรอกปีเกิดของท่าน 4 หลัก (ใช้ได้ทั้ง ค.ศ. หรือ พ.ศ.) ติดกันด้วยหมายเลข HN ของท่าน
                   </p>
                 </div>
 
@@ -488,26 +567,120 @@ export default function PatientPortal({
                       <option value="male">เพศชาย</option>
                     </select>
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">วันเดือนปีเกิด (ค.ศ.)</label>
-                    <input
-                      type="date"
-                      max={new Date().toISOString().split('T')[0]}
-                      value={regBirthDate}
-                      onChange={(e) => handleBirthDateChange(e.target.value)}
-                      className="px-4 py-2.5 w-full border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent font-mono"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">อายุ (ปี)</label>
+
+                  <div className="sm:col-span-2 space-y-1.5">
+                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">อายุคำนวณอัตโนมัติ (ปี)</label>
                     <input
                       type="text"
-                      value={regBirthDate ? `${regAge} ปี (อัตโนมัติ)` : 'เลือกวันเกิด'}
+                      value={regBirthDate ? `${regAge} ปี (บันทึก ค.ศ. ${regBirthDate.split('-')[0]} / พ.ศ. ${Number(regBirthDate.split('-')[0]) + 543})` : 'กรุณาระบุวันเดือนปีเกิด'}
                       disabled
-                      className="px-4 py-2.5 w-full border border-gray-150 rounded-xl text-sm bg-gray-50 text-gray-500 font-bold"
+                      className="px-4 py-2.5 w-full border border-gray-200 rounded-xl text-sm bg-gray-50 text-gray-700 font-bold"
                     />
                   </div>
+                </div>
+
+                {/* Dedicated Birth Date Selector - Explicitly in A.D. (ค.ศ.) */}
+                <div className="space-y-2 bg-gradient-to-br from-sky-50/80 via-blue-50/50 to-slate-50 p-4 rounded-2xl border border-sky-200">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-[#1E3A8A] uppercase tracking-wider flex items-center gap-1.5">
+                      <Calendar className="h-4 w-4 text-blue-700 shrink-0" />
+                      <span>วันเดือนปีเกิด (กำหนดเป็น ค.ศ. ชัดเจน)</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setUseCalendarPicker(!useCalendarPicker)}
+                      className="text-[11px] text-blue-700 hover:text-blue-900 font-bold underline cursor-pointer"
+                    >
+                      {useCalendarPicker ? '← เลือกแบบ วัน/เดือน/ปี' : 'เลือกจากปฏิทินมือถือ 📅'}
+                    </button>
+                  </div>
+
+                  {!useCalendarPicker ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">วันที่ (Day)</label>
+                        <select
+                          value={regBirthDay}
+                          onChange={(e) => updateBirthDateFromDropdowns(e.target.value, regBirthMonth, regBirthYear)}
+                          className="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm bg-white font-medium focus:ring-2 focus:ring-[#1E3A8A] focus:outline-none"
+                          required
+                        >
+                          <option value="">-- วันที่ --</option>
+                          {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+                            <option key={d} value={String(d)}>
+                              วันที่ {d}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">เดือน (Month)</label>
+                        <select
+                          value={regBirthMonth}
+                          onChange={(e) => updateBirthDateFromDropdowns(regBirthDay, e.target.value, regBirthYear)}
+                          className="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm bg-white font-medium focus:ring-2 focus:ring-[#1E3A8A] focus:outline-none"
+                          required
+                        >
+                          <option value="">-- เดือน --</option>
+                          {THAI_MONTHS.map((m) => (
+                            <option key={m.value} value={m.value}>
+                              {m.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-blue-950 mb-1">ปีเกิด ค.ศ. (เทียบ พ.ศ.)</label>
+                        <select
+                          value={regBirthYear}
+                          onChange={(e) => updateBirthDateFromDropdowns(regBirthDay, regBirthMonth, e.target.value)}
+                          className="w-full px-3 py-2.5 border-2 border-blue-600/40 rounded-xl text-sm bg-white font-bold text-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A] focus:outline-none"
+                          required
+                        >
+                          <option value="">-- ปี ค.ศ. (พ.ศ.) --</option>
+                          {BIRTH_YEARS.map((y) => (
+                            <option key={y.ad} value={y.ad}>
+                              {y.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="pt-1">
+                      <input
+                        type="date"
+                        max={new Date().toISOString().split('T')[0]}
+                        value={regBirthDate}
+                        onChange={(e) => handleBirthDateChange(e.target.value)}
+                        className="px-4 py-2.5 w-full border border-slate-300 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] font-mono"
+                        required
+                      />
+                      <p className="text-[10px] text-slate-500 mt-1">
+                        * ไม่ว่ามือถือจะแสดงเป็น พ.ศ. หรือ ค.ศ. ระบบจะตรวจจับและแปลงบันทึกเป็น ค.ศ. ให้โดยอัตโนมัติ
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Summary confirmation banner */}
+                  {regBirthDate && (
+                    <div className="bg-white/95 p-3 rounded-xl border border-sky-300/80 text-xs text-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-3xs mt-2">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                        <span className="font-bold text-[#1E3A8A]">
+                          วันเกิด: {regBirthDate.split('-')[2]} {THAI_MONTHS.find(m => m.value === regBirthDate.split('-')[1])?.name.split(' ')[0]} ค.ศ. {regBirthDate.split('-')[0]} (พ.ศ. {Number(regBirthDate.split('-')[0]) + 543})
+                        </span>
+                        <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                          อายุ {regAge} ปี
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-blue-900 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200 font-mono font-bold self-start sm:self-auto">
+                        รหัสปี ค.ศ. เกิด: <span className="text-blue-700 font-black">{regBirthDate.split('-')[0]}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-1.5">
