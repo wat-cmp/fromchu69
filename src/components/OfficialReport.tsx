@@ -172,11 +172,11 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
   return (
     <div className="space-y-6">
       {/* Control Actions - NOT Printed */}
-      <div className="flex flex-wrap justify-between items-center gap-4 bg-[#F0F7FF] p-4 rounded-2xl border border-[#CBD5E1] no-print">
+      <div className="flex flex-wrap justify-between items-center gap-4 bg-[#F2F7F4] p-4 rounded-2xl border border-[#D4AF37]/40 no-print">
         {onBack && (
           <button
             onClick={onBack}
-            className="inline-flex items-center space-x-2 text-sm font-semibold text-slate-600 hover:text-[#1E3A8A] transition-colors"
+            className="inline-flex items-center space-x-2 text-sm font-semibold text-slate-600 hover:text-[#064E3B] transition-colors cursor-pointer"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>ย้อนกลับ</span>
@@ -185,9 +185,9 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
         <div className="flex items-center space-x-3 ml-auto">
           <button
             onClick={handlePrint}
-            className="inline-flex items-center space-x-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-bold py-2 px-5 rounded-xl shadow-sm hover:shadow transition-all text-sm cursor-pointer"
+            className="inline-flex items-center space-x-2 bg-[#064E3B] hover:bg-[#04392B] text-white border border-[#D4AF37]/45 font-bold py-2 px-5 rounded-xl shadow-sm hover:shadow transition-all text-sm cursor-pointer"
           >
-            <Printer className="h-4 w-4" />
+            <Printer className="h-4 w-4 text-[#F3D98B]" />
             <span>พิมพ์รายงาน / ดาวน์โหลด PDF</span>
           </button>
         </div>
@@ -197,7 +197,7 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
       <div
         ref={printAreaRef}
         id="official-print-report"
-        className="bg-white border-2 border-[#CBD5E1] shadow-md rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-12 text-left space-y-8 font-sans print-card relative max-w-full overflow-hidden"
+        className="bg-white border-2 border-[#D4AF37]/45 shadow-md rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-12 text-left space-y-8 font-sans print-card relative max-w-full overflow-hidden"
       >
         {/* Decorative Stamp for Official Document Look */}
         <div className="absolute top-12 right-12 border-4 border-red-400/40 text-red-400/40 font-extrabold uppercase tracking-widest text-[11px] sm:text-xs py-1 px-3 sm:py-1.5 sm:px-4 rounded-xl rotate-12 pointer-events-none select-none">
@@ -206,20 +206,20 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
         </div>
 
         {/* Report Header */}
-        <div className="border-b-2 border-[#1E3A8A] pb-6 flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
+        <div className="border-b-2 border-[#064E3B] pb-6 flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
           <div className="flex items-center space-x-4">
             {/* Hospital Logo simulation */}
-            <div className="bg-[#1E3A8A] text-white p-3 rounded-2xl shadow-inner shrink-0">
-              <svg className="h-8 w-8 text-amber-300 fill-current" viewBox="0 0 24 24">
+            <div className="bg-[#064E3B] text-white p-3 rounded-2xl shadow-inner ring-1 ring-[#D4AF37]/60 shrink-0">
+              <svg className="h-8 w-8 text-[#F3D98B] fill-current" viewBox="0 0 24 24">
                 <path d="M19 10.5V20c0 .6-.4 1-1 1h-5v-5h-2v5H6c-.6 0-1-.4-1-1v-9.5l7-4.8 7 4.8zM12 2L2 9h3v11c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V9h3L12 2z" />
                 <path d="M10.5 11h3v3h-3z" />
               </svg>
             </div>
             <div className="space-y-1 text-center sm:text-left">
-              <span className="text-[10px] font-bold tracking-widest text-[#1E3A8A] uppercase font-mono block">
+              <span className="text-[10px] font-bold tracking-widest text-[#8A6114] uppercase font-mono block">
                 Ubon Ratchathani University Hospital
               </span>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-[#1E3A8A] tracking-tight leading-tight">
+              <h2 className="text-xl sm:text-2xl font-extrabold text-[#064E3B] tracking-tight leading-tight">
                 ศูนย์ตรวจสุขภาพ โรงพยาบาลมหาวิทยาลัยอุบลราชธานี
               </h2>
               <p className="text-xs text-gray-500 font-semibold font-mono">
@@ -228,7 +228,7 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
             </div>
           </div>
           <div className="text-center sm:text-right shrink-0">
-            <span className="bg-[#1E3A8A] text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full block mb-2 font-mono">
+            <span className="bg-[#064E3B] text-[#F3D98B] border border-[#D4AF37]/50 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-md inline-block mb-2 font-mono">
               HEALTH CHECKUP REPORT
             </span>
             <p className="text-xs text-gray-400">เลขที่เอกสารอ้างอิง</p>
@@ -237,38 +237,38 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
         </div>
 
         {/* Patient Demographic Info */}
-        <div className="bg-[#F0F7FF] p-6 rounded-2xl border border-[#CBD5E1] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-6 text-sm">
+        <div className="bg-[#F2F7F4] p-6 rounded-2xl border border-[#D4AF37]/35 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-6 text-sm">
           <div className="space-y-0.5">
-            <span className="text-xs text-gray-400 font-medium">ชื่อ-นามสกุล ผู้รับบริการ</span>
+            <span className="text-xs text-gray-500 font-medium">ชื่อ-นามสกุล ผู้รับบริการ</span>
             <p className="font-bold text-gray-800">{patient.name}</p>
           </div>
           <div className="space-y-0.5">
-            <span className="text-xs text-gray-400 font-medium">หมายเลขคนไข้ (HN)</span>
-            <p className="font-bold text-[#1E3A8A] font-mono">{patient.hn || <span className="text-gray-400 font-normal">ยังไม่ได้ระบุ</span>}</p>
+            <span className="text-xs text-gray-500 font-medium">หมายเลขคนไข้ (HN)</span>
+            <p className="font-bold text-[#064E3B] font-mono">{patient.hn || <span className="text-gray-400 font-normal">ยังไม่ได้ระบุ</span>}</p>
           </div>
           <div className="space-y-0.5">
-            <span className="text-xs text-gray-400 font-medium">วันเดือนปีเกิด (Date of Birth)</span>
+            <span className="text-xs text-gray-500 font-medium">วันเดือนปีเกิด (Date of Birth)</span>
             <p className="font-bold text-gray-800 font-mono">
               {patient.birthDate ? new Date(patient.birthDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}
             </p>
           </div>
           <div className="space-y-0.5">
-            <span className="text-xs text-gray-400 font-medium">เพศ / อายุ</span>
+            <span className="text-xs text-gray-500 font-medium">เพศ / อายุ</span>
             <p className="font-bold text-gray-800">
               {patient.gender === 'female' ? 'หญิง (Female)' : 'ชาย (Male)'} | {patient.age} ปี
             </p>
           </div>
           <div className="space-y-0.5">
-            <span className="text-xs text-gray-400 font-medium">เบอร์โทรศัพท์ติดต่อ</span>
+            <span className="text-xs text-gray-500 font-medium">เบอร์โทรศัพท์ติดต่อ</span>
             <p className="font-bold text-gray-800 font-mono">{patient.phone}</p>
           </div>
           <div className="space-y-0.5">
-            <span className="text-xs text-gray-400 font-medium">วันที่เข้ารับการตรวจ (Exam Date)</span>
+            <span className="text-xs text-gray-500 font-medium">วันที่เข้ารับการตรวจ (Exam Date)</span>
             <p className="font-bold text-gray-800 font-mono">{result.examDate}</p>
           </div>
           <div className="space-y-0.5">
-            <span className="text-xs text-gray-400 font-medium">แพทย์ผู้ตรวจและลงนาม (Physician)</span>
-            <p className="font-bold text-[#1E3A8A]">
+            <span className="text-xs text-gray-500 font-medium">แพทย์ผู้ตรวจและลงนาม (Physician)</span>
+            <p className="font-bold text-[#064E3B]">
               {result.doctorName} {result.doctorLicense ? `(${result.doctorLicense})` : ''}
             </p>
           </div>
@@ -276,7 +276,7 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
 
         {/* Body Composition & Physical Exam results */}
         <div className="space-y-4">
-          <h3 className="text-sm font-bold text-[#1E3A8A] uppercase tracking-widest border-l-4 border-[#1E3A8A] pl-3">
+          <h3 className="text-sm font-bold text-[#064E3B] uppercase tracking-widest border-b border-[#D4AF37]/40 pb-1.5">
             1. สัญญาณชีพและผลการตรวจร่างกายทั่วไป (Vital Signs & Physical Examination)
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-4 text-xs">
@@ -290,27 +290,27 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
               <span className="text-base font-extrabold text-gray-800 font-mono mt-1 block">{result.physical.height}</span>
               <span className="text-gray-400 font-medium text-[10px] mt-0.5 block">เซนติเมตร (cm)</span>
             </div>
-            <div className="bg-white p-3.5 rounded-xl border border-[#CBD5E1] text-center">
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 text-center">
               <span className="text-gray-400 font-medium block">ดัชนีมวลกาย (BMI)</span>
               <span className="text-base font-extrabold text-gray-800 font-mono mt-1 block">{result.physical.bmi}</span>
-              <span className="text-[10px] font-bold text-[#1E3A8A] mt-0.5 block">{result.physical.bmiStatus}</span>
+              <span className="text-[10px] font-bold text-[#064E3B] mt-0.5 block">{result.physical.bmiStatus}</span>
             </div>
-            <div className="bg-white p-3.5 rounded-xl border border-[#CBD5E1] text-center">
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 text-center">
               <span className="text-gray-400 font-medium block">รอบเอว</span>
               <span className="text-base font-extrabold text-gray-800 font-mono mt-1 block">{result.physical.waistline || '-'}</span>
               <span className="text-gray-400 font-medium text-[10px] mt-0.5 block">เซนติเมตร (cm)</span>
             </div>
-            <div className="bg-white p-3.5 rounded-xl border border-[#CBD5E1] text-center">
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 text-center">
               <span className="text-gray-400 font-medium block">ความดันโลหิต</span>
               <span className="text-base font-extrabold text-gray-800 font-mono mt-1 block">{result.physical.bloodPressure}</span>
               <span className="text-gray-400 font-medium text-[10px] mt-0.5 block">มม.ปรอท (mmHg)</span>
             </div>
-            <div className="bg-white p-3.5 rounded-xl border border-[#CBD5E1] text-center">
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 text-center">
               <span className="text-gray-400 font-medium block">อัตราการเต้นหัวใจ</span>
               <span className="text-base font-extrabold text-gray-800 font-mono mt-1 block">{result.physical.heartRate}</span>
               <span className="text-gray-400 font-medium text-[10px] mt-0.5 block">ครั้ง/นาที (bpm)</span>
             </div>
-            <div className="bg-white p-3.5 rounded-xl border border-[#CBD5E1] text-center flex flex-col justify-between">
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 text-center flex flex-col justify-between">
               <span className="text-gray-400 font-medium block">ประเมินรวม</span>
               <span className={`inline-flex self-center px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${getStatusColor(result.physical.generalStatus)} mt-1`}>
                 {result.physical.generalStatus}
@@ -319,7 +319,7 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
             </div>
           </div>
           {result.physical.notes && (
-            <div className="bg-[#F8FAFC] border border-[#CBD5E1] p-4 rounded-xl text-xs text-gray-600">
+            <div className="bg-[#F7F9F7] border border-slate-200 p-4 rounded-xl text-xs text-gray-600">
               <span className="font-bold text-gray-700 block mb-1">บันทึกเพิ่มเติมทางการแพทย์:</span>
               <p>{result.physical.notes}</p>
             </div>
@@ -328,10 +328,10 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
 
         {/* Chest X-ray outcomes */}
         <div className="space-y-3">
-          <h3 className="text-sm font-bold text-[#1E3A8A] uppercase tracking-widest border-l-4 border-[#1E3A8A] pl-3">
+          <h3 className="text-sm font-bold text-[#064E3B] uppercase tracking-widest border-b border-[#D4AF37]/40 pb-1.5">
             2. ผลตรวจเอกซเรย์ทรวงอก (Chest X-Ray)
           </h3>
-          <div className="bg-white border border-[#CBD5E1] rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="bg-white border border-slate-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
               <p className="text-xs text-gray-400 font-medium">ผลการวินิจฉัยรังสีแพทย์</p>
               <p className="text-sm font-bold text-gray-800">{result.chestXray.description}</p>
@@ -346,9 +346,9 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
 
         {/* Lab Parameters table */}
         <div className="space-y-3">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 border-l-4 border-[#1E3A8A] pl-3">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 border-b border-[#D4AF37]/40 pb-1.5">
             <div>
-              <h3 className="text-sm font-bold text-[#1E3A8A] uppercase tracking-widest">
+              <h3 className="text-sm font-bold text-[#064E3B] uppercase tracking-widest">
                 3. สรุปผลการตรวจทางห้องปฏิบัติการ (Laboratory Investigation Results)
               </h3>
               <p className="text-[11px] text-gray-500 font-medium">
@@ -358,8 +358,8 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
 
             {/* Quick scroll controls for Phones and Tablets */}
             <div className="lg:hidden flex items-center gap-2 self-start sm:self-auto no-print">
-              <span className="inline-flex items-center gap-1.5 text-[11px] text-sky-900 font-semibold bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200">
-                <ArrowLeftRight className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 text-[11px] text-[#064E3B] font-semibold bg-[#F2F7F4] px-2.5 py-1 rounded-lg border border-[#D4AF37]/40">
+                <ArrowLeftRight className="h-3.5 w-3.5 text-[#8A6114]" />
                 <span>เลื่อนซ้าย-ขวาเพื่อดูรายละเอียด</span>
               </span>
               <div className="flex items-center space-x-1">
@@ -369,7 +369,7 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
                   disabled={!canScrollLeft}
                   className={`p-1.5 rounded-lg border text-xs flex items-center transition-all ${
                     canScrollLeft
-                      ? 'bg-white text-blue-900 border-blue-200 hover:bg-blue-50 active:scale-95 shadow-xs cursor-pointer'
+                      ? 'bg-white text-[#064E3B] border-[#D4AF37]/45 hover:bg-emerald-50 active:scale-95 shadow-xs cursor-pointer'
                       : 'bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed'
                   }`}
                   title="เลื่อนไปทางซ้าย"
@@ -382,7 +382,7 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
                   disabled={!canScrollRight}
                   className={`p-1.5 rounded-lg border text-xs flex items-center transition-all ${
                     canScrollRight
-                      ? 'bg-white text-blue-900 border-blue-200 hover:bg-blue-50 active:scale-95 shadow-xs cursor-pointer'
+                      ? 'bg-white text-[#064E3B] border-[#D4AF37]/45 hover:bg-emerald-50 active:scale-95 shadow-xs cursor-pointer'
                       : 'bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed'
                   }`}
                   title="เลื่อนไปทางขวา"
@@ -393,11 +393,11 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
             </div>
           </div>
 
-          <div className="border border-[#CBD5E1] rounded-2xl shadow-sm overflow-hidden bg-white">
+          <div className="border border-slate-200 rounded-2xl shadow-sm overflow-hidden bg-white">
             {/* Mobile & Tablet swipe helper bar */}
-            <div className="lg:hidden bg-gradient-to-r from-sky-50 via-blue-50/50 to-slate-50 border-b border-sky-100 px-3.5 py-2.5 flex items-center justify-between text-xs text-sky-950 font-medium no-print">
+            <div className="lg:hidden bg-[#F2F7F4] border-b border-[#D4AF37]/30 px-3.5 py-2.5 flex items-center justify-between text-xs text-[#03241B] font-medium no-print">
               <span className="flex items-center gap-1.5">
-                <ArrowLeftRight className="h-4 w-4 text-blue-700 shrink-0" />
+                <ArrowLeftRight className="h-4 w-4 text-[#8A6114] shrink-0" />
                 <span className="text-[11px] sm:text-xs">
                   หน้าจอโทรศัพท์/แท็บเล็ต: สามารถใช้นิ้วปัดเลื่อนซ้าย-ขวา หรือกดปุ่มเลื่อนดูได้
                 </span>
@@ -406,7 +406,7 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
                 <button
                   type="button"
                   onClick={() => scrollLabTable('left')}
-                  className="px-2.5 py-1 bg-white hover:bg-blue-50 text-blue-800 text-[11px] font-bold rounded-md border border-blue-200 shadow-2xs flex items-center gap-1 cursor-pointer active:scale-95 transition-all"
+                  className="px-2.5 py-1 bg-white hover:bg-emerald-50 text-[#064E3B] text-[11px] font-bold rounded-md border border-[#D4AF37]/45 shadow-2xs flex items-center gap-1 cursor-pointer active:scale-95 transition-all"
                 >
                   <ChevronLeft className="h-3.5 w-3.5" />
                   <span>ซ้าย</span>
@@ -414,7 +414,7 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
                 <button
                   type="button"
                   onClick={() => scrollLabTable('right')}
-                  className="px-2.5 py-1 bg-blue-700 hover:bg-blue-800 text-white text-[11px] font-bold rounded-md shadow-2xs flex items-center gap-1 cursor-pointer active:scale-95 transition-all"
+                  className="px-2.5 py-1 bg-[#064E3B] hover:bg-[#04392B] text-white text-[11px] font-bold rounded-md shadow-2xs flex items-center gap-1 cursor-pointer active:scale-95 transition-all"
                 >
                   <span>ขวา</span>
                   <ChevronRight className="h-3.5 w-3.5" />
@@ -428,21 +428,21 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
               className="overflow-x-auto w-full overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch]"
             >
               <table className="min-w-[760px] md:min-w-[820px] w-full divide-y divide-gray-200">
-                <thead className="bg-[#F0F7FF] table-header">
+                <thead className="bg-[#F2F7F4] table-header">
                   <tr>
                     <th
                       scope="col"
-                      className="sticky-col sticky left-0 z-20 bg-[#F0F7FF] px-5 py-3.5 text-left text-xs font-bold text-[#1E3A8A] uppercase tracking-wider min-w-[220px] shadow-[2px_0_6px_-2px_rgba(0,0,0,0.06)]"
+                      className="sticky-col sticky left-0 z-20 bg-[#F2F7F4] px-5 py-3.5 text-left text-xs font-bold text-[#064E3B] uppercase tracking-wider min-w-[220px] shadow-[2px_0_6px_-2px_rgba(0,0,0,0.06)]"
                     >
                       รายการตรวจ (Investigation)
                     </th>
-                    <th scope="col" className="px-5 py-3.5 text-left text-xs font-bold text-[#1E3A8A] uppercase tracking-wider min-w-[180px]">
+                    <th scope="col" className="px-5 py-3.5 text-left text-xs font-bold text-[#064E3B] uppercase tracking-wider min-w-[180px]">
                       ค่าที่ตรวจได้ (Result Value)
                     </th>
-                    <th scope="col" className="px-5 py-3.5 text-left text-xs font-bold text-[#1E3A8A] uppercase tracking-wider min-w-[180px]">
+                    <th scope="col" className="px-5 py-3.5 text-left text-xs font-bold text-[#064E3B] uppercase tracking-wider min-w-[180px]">
                       ค่าอ้างอิงปกติ (Reference Range)
                     </th>
-                    <th scope="col" className="px-5 py-3.5 text-center text-xs font-bold text-[#1E3A8A] uppercase tracking-wider min-w-[150px]">
+                    <th scope="col" className="px-5 py-3.5 text-center text-xs font-bold text-[#064E3B] uppercase tracking-wider min-w-[150px]">
                       ผลการประเมิน (Assessment)
                     </th>
                   </tr>
@@ -454,7 +454,7 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
                     if (!meta) return null;
                     const isDeclined = item.status === 'ไม่ประสงค์ตรวจ' || item.value === 'ไม่ประสงค์ตรวจ';
                     return (
-                      <tr key={key} className={`group hover:bg-sky-50/30 transition-colors ${isDeclined ? 'bg-red-50/10' : ''}`}>
+                      <tr key={key} className={`group hover:bg-emerald-50/30 transition-colors ${isDeclined ? 'bg-red-50/10' : ''}`}>
                         <td className="sticky-col sticky left-0 z-10 bg-white group-hover:bg-[#F8FAFC] px-5 py-3.5 whitespace-nowrap shadow-[2px_0_6px_-2px_rgba(0,0,0,0.06)] transition-colors">
                           <div className="space-y-0.5">
                             <p className={`font-bold text-sm ${isDeclined ? 'text-gray-400 line-through' : 'text-gray-800'}`}>{meta.name}</p>
@@ -510,14 +510,14 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
         {/* Attached Files from nurse */}
         {result.attachedFiles && result.attachedFiles.length > 0 && (
           <div className="space-y-3 no-print">
-            <h3 className="text-sm font-bold text-[#1E3A8A] uppercase tracking-widest border-l-4 border-[#1E3A8A] pl-3">
+            <h3 className="text-sm font-bold text-[#064E3B] uppercase tracking-widest border-b border-[#D4AF37]/40 pb-1.5">
               4. เอกสารและใบรายงานผลเพิ่มเติม (Attached Official PDF Results)
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {result.attachedFiles.map((file) => (
                 <div
                   key={file.id}
-                  className="bg-white hover:bg-sky-50/40 border border-slate-200 hover:border-sky-300 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-3xs transition-all group"
+                  className="bg-white hover:bg-[#F2F7F4]/70 border border-slate-200 hover:border-[#C9A24D] p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-3xs transition-all group"
                 >
                   <div
                     onClick={() => setPreviewFile(file)}
@@ -528,7 +528,7 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
                       <FileText className="h-5 w-5" />
                     </div>
                     <div className="text-left min-w-0">
-                      <p className="text-xs font-bold text-slate-800 line-clamp-1 group-hover:text-blue-900 transition-colors">
+                      <p className="text-xs font-bold text-slate-800 line-clamp-1 group-hover:text-[#064E3B] transition-colors">
                         {file.name}
                       </p>
                       <p className="text-[10px] text-slate-400 font-mono mt-0.5">
@@ -542,10 +542,10 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
                     <button
                       type="button"
                       onClick={() => setPreviewFile(file)}
-                      className="text-xs font-bold text-blue-900 hover:text-white bg-sky-100/90 hover:bg-blue-800 flex items-center space-x-1.5 px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-3xs"
+                      className="text-xs font-bold text-[#064E3B] hover:text-white bg-[#F2F7F4] hover:bg-[#064E3B] border border-[#D4AF37]/40 flex items-center space-x-1.5 px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-3xs"
                       title="เปิดดูเอกสารในระบบ (In-App Preview Modal)"
                     >
-                      <Eye className="h-3.5 w-3.5 text-blue-800 hover:text-white" />
+                      <Eye className="h-3.5 w-3.5" />
                       <span>เปิดดู</span>
                     </button>
 
@@ -560,7 +560,7 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
                           alert('ไม่สามารถดาวน์โหลดไฟล์ได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง');
                         }
                       }}
-                      className="text-xs font-bold text-slate-700 hover:text-blue-900 bg-white hover:bg-slate-50 flex items-center space-x-1.5 border border-slate-200 hover:border-blue-400 px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-3xs"
+                      className="text-xs font-bold text-slate-700 hover:text-[#064E3B] bg-white hover:bg-slate-50 flex items-center space-x-1.5 border border-slate-200 hover:border-[#C9A24D] px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-3xs"
                       title="ดาวน์โหลดไฟล์ลงเครื่อง"
                     >
                       <Download className="h-3.5 w-3.5 text-slate-500" />
@@ -574,16 +574,16 @@ export default function OfficialReport({ patient, result, appointment, onBack }:
         )}
 
         {/* Recommendations block */}
-        <div className="bg-[#F0F7FF] border border-[#CBD5E1] rounded-2xl p-6 sm:p-8 space-y-4">
-          <div className="flex items-center space-x-2 text-[#1E3A8A]">
-            <ShieldAlert className="h-5 w-5 text-[#1E3A8A]" />
+        <div className="bg-[#F2F7F4] border border-[#D4AF37]/40 rounded-2xl p-6 sm:p-8 space-y-4">
+          <div className="flex items-center space-x-2 text-[#064E3B]">
+            <ShieldAlert className="h-5 w-5 text-[#8A6114]" />
             <h4 className="text-base font-extrabold">สรุปภาพรวมและคำแนะนำส่วนบุคคลเพื่อการปรับเปลี่ยนพฤติกรรม (Clinical Impression & Personalized Plan)</h4>
           </div>
-          <p className="text-sm font-semibold text-gray-700 leading-relaxed border-b border-[#CBD5E1] pb-3">
+          <p className="text-sm font-semibold text-gray-700 leading-relaxed border-b border-[#D4AF37]/30 pb-3">
             {result.summary}
           </p>
           <div className="space-y-2">
-            <p className="text-xs text-[#1E3A8A] font-bold uppercase tracking-wider">แนวทางปฏิบัติเพื่อสุขภาพที่ดีขึ้น (Actionable Recommendations):</p>
+            <p className="text-xs text-[#064E3B] font-bold uppercase tracking-wider">แนวทางปฏิบัติเพื่อสุขภาพที่ดีขึ้น (Actionable Recommendations):</p>
             <ul className="text-xs text-gray-600 space-y-1.5 list-disc list-inside">
               {result.recommendations.map((rec, idx) => (
                 <li key={idx} className="leading-relaxed font-medium">

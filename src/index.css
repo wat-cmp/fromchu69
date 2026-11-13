@@ -7,9 +7,14 @@
 }
 
 body {
-  background-color: #F8FAFC;
-  color: #0F172A;
+  background-color: #F7F9F7;
+  color: #0F241D;
   font-family: var(--font-sans);
+}
+
+::selection {
+  background-color: #D4AF37;
+  color: #03241B;
 }
 
 /* Custom print styles for clinical reports */

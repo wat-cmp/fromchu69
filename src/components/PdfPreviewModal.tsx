@@ -142,7 +142,7 @@ export default function PdfPreviewModal({
         aria-labelledby="modal-title"
       >
         {/* Top Header Bar */}
-        <div className="bg-gradient-to-r from-blue-950 via-blue-900 to-sky-900 text-white px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3 border-b border-sky-800/50 shrink-0">
+        <div className="bg-gradient-to-r from-[#03241B] via-[#064E3B] to-[#04392B] text-white px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3 border-b border-[#D4AF37]/40 shrink-0">
           <div className="flex items-center space-x-3 min-w-0">
             <div className="bg-red-500/20 text-red-300 p-2 rounded-xl border border-red-400/30 shrink-0">
               <FileText className="h-5 w-5" />
@@ -156,11 +156,11 @@ export default function PdfPreviewModal({
                 >
                   {file.name}
                 </h3>
-                <span className="hidden sm:inline-flex bg-sky-500/20 text-sky-200 border border-sky-400/30 text-[10px] font-mono px-2 py-0.5 rounded-full shrink-0">
-                  {file.category}
+                <span className="hidden sm:inline text-[11px] font-mono text-[#F3D98B] shrink-0">
+                  · {file.category}
                 </span>
               </div>
-              <p className="text-[11px] text-sky-200/80 font-mono truncate">
+              <p className="text-[11px] text-emerald-100/80 font-mono truncate">
                 {file.size} • เอกสารทางการแพทย์ (In-App PDF Viewer)
               </p>
             </div>
@@ -175,7 +175,7 @@ export default function PdfPreviewModal({
               className="bg-white/10 hover:bg-white/20 active:bg-white/30 text-white text-xs font-medium px-2.5 sm:px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               title="ดาวน์โหลดไฟล์ PDF ลงเครื่อง"
             >
-              <Download className="h-3.5 w-3.5 text-sky-300" />
+              <Download className="h-3.5 w-3.5 text-[#F3D98B]" />
               <span className="hidden md:inline">ดาวน์โหลด</span>
             </button>
 
@@ -186,7 +186,7 @@ export default function PdfPreviewModal({
               className="hidden sm:flex bg-white/10 hover:bg-white/20 text-white text-xs font-medium px-2.5 sm:px-3 py-1.5 rounded-xl transition-colors items-center gap-1.5 cursor-pointer disabled:opacity-50"
               title="สั่งพิมพ์เอกสาร"
             >
-              <Printer className="h-3.5 w-3.5 text-sky-300" />
+              <Printer className="h-3.5 w-3.5 text-[#F3D98B]" />
               <span className="hidden md:inline">พิมพ์</span>
             </button>
 
@@ -197,7 +197,7 @@ export default function PdfPreviewModal({
               className="bg-white/10 hover:bg-white/20 text-white text-xs font-medium p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               title="เปิดในแท็บใหม่ / ขยายเต็มหน้าต่าง"
             >
-              <ExternalLink className="h-3.5 w-3.5 text-sky-300" />
+              <ExternalLink className="h-3.5 w-3.5 text-[#F3D98B]" />
               <span className="hidden lg:inline">เปิดแท็บใหม่</span>
             </button>
 
@@ -217,7 +217,7 @@ export default function PdfPreviewModal({
         <div className="relative flex-1 w-full h-full bg-slate-100 flex flex-col items-center justify-center overflow-hidden">
           {isLoading && (
             <div className="text-center p-8 space-y-3">
-              <Loader2 className="h-9 w-9 text-blue-800 animate-spin mx-auto" />
+              <Loader2 className="h-9 w-9 text-[#064E3B] animate-spin mx-auto" />
               <p className="text-sm font-bold text-slate-700">กำลังเปิดตัวอย่างเอกสาร PDF...</p>
               <p className="text-xs text-slate-400">กรุณารอสักครู่ ระบบกำลังเรนเดอร์เอกสารสำหรับท่าน</p>
             </div>
@@ -233,9 +233,9 @@ export default function PdfPreviewModal({
               <div className="flex justify-center gap-2 pt-2">
                 <button
                   onClick={handleDownload}
-                  className="bg-blue-800 hover:bg-blue-900 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
+                  className="bg-[#064E3B] hover:bg-[#04392B] text-white text-xs font-bold px-4 py-2 rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
                 >
-                  <Download className="h-3.5 w-3.5" />
+                  <Download className="h-3.5 w-3.5 text-[#F3D98B]" />
                   <span>ดาวน์โหลดไฟล์แทน</span>
                 </button>
                 <button
@@ -266,7 +266,7 @@ export default function PdfPreviewModal({
                     <p className="text-sm text-slate-600">เบราว์เซอร์ของท่านไม่รองรับการแสดงตัวอย่าง PDF ในหน้านี้โดยตรง</p>
                     <button
                       onClick={handleDownload}
-                      className="bg-blue-800 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer"
+                      className="bg-[#064E3B] text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer"
                     >
                       ดาวน์โหลดเพื่อเปิดดู
                     </button>
@@ -278,9 +278,8 @@ export default function PdfPreviewModal({
         </div>
 
         {/* Bottom Helper Bar for Mobile/Touch Users */}
-        <div className="bg-slate-50 border-t border-slate-200 px-4 py-2.5 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2 shrink-0">
+        <div className="bg-[#F7F9F7] border-t border-slate-200 px-4 py-2.5 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2 shrink-0">
           <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span className="text-[11px] text-slate-600">
               UBUH PDF Viewer • เอกสารรับรองจากระบบศูนย์ตรวจสุขภาพ
             </span>
@@ -291,7 +290,7 @@ export default function PdfPreviewModal({
             </span>
             <button
               onClick={handleOpenNewTab}
-              className="text-blue-700 font-bold hover:underline cursor-pointer flex items-center gap-1"
+              className="text-[#064E3B] font-bold hover:underline cursor-pointer flex items-center gap-1"
             >
               <Maximize2 className="h-3 w-3" />
               <span>เปิดดูแบบเต็มจอ</span>

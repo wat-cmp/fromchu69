@@ -267,7 +267,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F7F9F7] flex flex-col font-sans">
       {/* Header & Nav */}
       <Navbar
         activeTab={activeTab}
@@ -282,7 +282,9 @@ export default function App() {
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="space-y-12">
-          {activeTab === 'info' && <InfoPortal />}
+          {activeTab === 'info' && (
+            <InfoPortal onGoToPatientPortal={() => setActiveTab('patient')} />
+          )}
 
           {activeTab === 'patient' && (
             <PatientPortal
@@ -317,18 +319,17 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gradient-to-r from-blue-950 via-blue-900 to-sky-950 text-white py-8 border-t-4 border-sky-500 mt-12 no-print shadow-inner">
+      <footer className="bg-gradient-to-r from-[#03241B] via-[#064E3B] to-[#04392B] text-white py-8 border-t-2 border-[#D4AF37] mt-12 no-print shadow-inner">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
           <div className="space-y-1">
-            <div className="flex items-center justify-center sm:justify-start gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-sky-400"></span>
-              <p className="text-sm font-bold tracking-wide">โรงพยาบาลมหาวิทยาลัยอุบลราชธานี (UBUH)</p>
-            </div>
-            <p className="text-xs text-sky-200">
+            <p className="text-sm font-bold tracking-wide text-[#F3D98B]">
+              โรงพยาบาลมหาวิทยาลัยอุบลราชธานี (UBUH)
+            </p>
+            <p className="text-xs text-emerald-100/85">
               ระบบศูนย์ตรวจสุขภาพออนไลน์ประจำปีและส่งเสริมเวชศาสตร์วิถีชีวิต (Lifestyle Medicine Center)
             </p>
           </div>
-          <div className="text-xs text-sky-300/80 font-mono text-center sm:text-right">
+          <div className="text-xs text-[#E6C667]/80 font-mono text-center sm:text-right">
             <p>&copy; {new Date().getFullYear()} UBUH Health Checkup Center. All Rights Reserved.</p>
           </div>
         </div>

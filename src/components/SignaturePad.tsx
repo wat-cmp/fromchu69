@@ -129,7 +129,7 @@ export default function SignaturePad({ value, onChange }: SignaturePadProps) {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <label className="font-bold text-gray-500 font-medium flex items-center gap-1">
-          <PenTool className="h-3.5 w-3.5 text-blue-600" />
+          <PenTool className="h-3.5 w-3.5 text-emerald-700" />
           <span>ลายเซ็นอิเล็กทรอนิกส์แพทย์ (Doctor's Signature)</span>
         </label>
         {hasSigned && (
